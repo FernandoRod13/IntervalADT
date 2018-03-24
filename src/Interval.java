@@ -13,7 +13,12 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if min is greater or equal to max
 	 */
 	public Interval(double min, double max) { 
+		if (min >= max)
+			throw new IllegalArgumentException("Min cannot be greater or equal to Max");
 		
+		this.min = min;
+		this.max = max;
+		this.empty = false;
 	}
 	
 	
@@ -26,7 +31,22 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if min is greater or equal to max
 	 */
 	public Interval(boolean universal, boolean empty) {
+		if(universal && empty)
+			throw new IllegalArgumentException("An Interval cannot be the Universal set and the empty set at the same time");
 		
+		if (universal == false && empty == false)
+			throw new IllegalArgumentException("Must specified one, universal or empty");
+		
+		if(universal) {
+			this.min = Double.NEGATIVE_INFINITY;
+			this.max = Double.POSITIVE_INFINITY;
+			this.empty = false;
+			}
+			else {
+			this.min = 0; 
+			this.max = 0; 
+			this.empty = true;
+			}
 	}
 	
 	/**
@@ -35,9 +55,10 @@ public class Interval implements Comparable<Interval> {
 	 * @throws UnsupportedOperationException if you try to get the min value when the interval in an empty Interval
 	 */
 	public double getMin() throws UnsupportedOperationException {
+		if (this.empty)
+			throw new UnsupportedOperationException("Empty set does not have min");
 		
-		
-		return 0.0;
+		else return this.min;
 	}
 
 	
@@ -47,7 +68,10 @@ public class Interval implements Comparable<Interval> {
 	 * @throws UnsupportedOperationException if you try to get the max value when the interval in an empty Interval
 	 */
 	public double getMax() throws UnsupportedOperationException {
-		return 0.0;
+		if (this.empty)
+			throw new UnsupportedOperationException("Empty set does not have max"); 
+		
+		else return this.max;
 	}
 	
 	
@@ -56,7 +80,7 @@ public class Interval implements Comparable<Interval> {
 	 * @return true if it is the universal interval, false otherwise
 	 */
 	public boolean isUniversal() {
-		return true;
+		return this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY;
 	}
 	
 	
@@ -65,7 +89,7 @@ public class Interval implements Comparable<Interval> {
 	 * @return true if empty set, false otherwise
 	 */
 	public boolean isEmpty() {
-		return false;
+		return this.empty;
 	}
 
 	/**
@@ -76,16 +100,42 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public Interval intersects(Interval interval1) {
+
+
+		if(!(interval1.getMax() <= this.min || interval1.getMin() >= this.max)) {
 			
+			if(interval1.getMin() > this.min) {
+				if(interval1.getMax() < this.max) {
+					// case 1
+					return new Interval(interval1.getMin(),interval1.getMax());
+				}
+				else {
+					// case 2
+					return new Interval(interval1.getMin(),this.max);
+				}
+			}
+			else {
+				if(interval1.getMax() < this.max) {
+					// case 3
+					return new Interval(this.min ,interval1.getMax());
+				}
+				else{
+					// case 4
+					return new Interval(this.min ,this.max);
+				}
+			}
+		}
+
+		else {
+			// case 5 && 6
 			return new Interval(false, true);
 
-		
+		}
 	}
 	
 	/**
 	 * This will find the complement of an interval. The complement is the outer boundaries of the interval and will represented by a pair of
 	 * intervals that group all values that do not fall in the range of the passed interval.
-	 * @param interval Interval to find the complement
 	 * @return  an IntervalSet containing the intervals that represent the complement of inputed interval
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
@@ -111,6 +161,10 @@ public class Interval implements Comparable<Interval> {
 	}
 	
 	
+	
+	
+	
+	
 	/**
 	 * This method will return true if the element is within the range of the target interval.
 	 * @param element double number to find in range.
@@ -121,16 +175,29 @@ public class Interval implements Comparable<Interval> {
 		return true;
 	}
 	
+	
+	
+
 	@Override
 	public int compareTo( final Interval t) {
 		//TODO
+		// This is wrong
 		
-		return 1;
+		if (this.min > t.getMin()) {
+			return -1;
+		}else if (this.max < t.getMax()) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 	
 	@Override
 	public boolean equals(Object t) {
-		
+		if ( t instanceof Interval) {
+			Interval t1 = (Interval) t;
+			return this.max == t1.max && this.min == t1.min;
+		}
 		return false;
 	}
 

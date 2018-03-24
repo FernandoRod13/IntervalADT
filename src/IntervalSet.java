@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 public class IntervalSet {
 	
@@ -10,7 +11,11 @@ public class IntervalSet {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public IntervalSet(Interval i) {
-		
+		if( i == null) {
+			throw new IllegalArgumentException("Interval cannot be null.");
+		}
+		this.intervals = new ArrayList<>();
+		this.intervals.add(i);	
 	}
 
 	/**
@@ -20,7 +25,21 @@ public class IntervalSet {
 	 * @throws IllegalArgumentException if both intervals are equal or if any are null.
 	 */
 	public IntervalSet( Interval i1, Interval i2) {
-		
+		if(i1 == null || i2 == null) {
+			throw new IllegalArgumentException("Intervals cannot be null.");
+		}
+			
+		if( i1.equals(i2)) {
+			throw new IllegalArgumentException("Both intervals cannot be equal.");
+		}
+		this.intervals = new ArrayList<>();
+		if (i1.compareTo(i2) < 1) {
+			this.intervals.add(i1);
+			this.intervals.add(i2);
+		} else {
+			this.intervals.add(i2);
+			this.intervals.add(i1);
+		}
 	}
 	
 	/**
@@ -39,7 +58,10 @@ public class IntervalSet {
 	 * @throws IllegalArgumentException if a tuple with the same min and max exists or if the interval passed is null.
 	 */
 	public void addInterval(Interval i) {
-		
+		//TODO
+		if(i == null) {
+			throw new IllegalArgumentException("Interval cannot be null");
+		}
 	}
 	
 	/**
@@ -48,7 +70,7 @@ public class IntervalSet {
 	 * @return The removed interval from the interval set
 	 * @throws NoSuchElementException if the interval is not in the interval set.
 	 */
-	public Interval removeInterval(Interval i) {
+	public Interval removeInterval(Interval i) throws NoSuchElementException {
 
 		//TODO
 		return null;
@@ -59,7 +81,17 @@ public class IntervalSet {
 	
 	@Override
 	public String toString(){
-		String stringTR = "";
+		String stringTR = "[ ";
+
+		for(int i = 0; i < this.intervals.size(); i++) {
+
+			if(i < this.intervals.size() - 1) {
+				stringTR += this.intervals.get(i).toString() + " U ";
+			}
+			else {
+				stringTR += this.intervals.get(i).toString() + " ]";	
+			}
+		}
 
 
 		return stringTR;
