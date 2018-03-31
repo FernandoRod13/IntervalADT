@@ -171,8 +171,11 @@ public class Interval implements Comparable<Interval> {
 	 * @return true if in range false otherwise.
 	 */
 	public boolean contains(double element ) {
+		if(this.empty) {
+			return false;
+		}
 		
-		return true;
+		return element >= this.getMin() && element <= this.getMax();
 	}
 	
 	
