@@ -156,6 +156,8 @@ public class Interval implements Comparable<Interval> {
 		}
 		
 		
+		
+		
 		// Falta case para -INF al numero
 		if(this.min == Double.NEGATIVE_INFINITY) {
 			return new IntervalSet(new Interval(this.max + 0.001, Double.POSITIVE_INFINITY));

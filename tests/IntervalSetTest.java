@@ -1,12 +1,21 @@
 import static org.junit.jupiter.api.Assertions.*;
-
+import org.junit.jupiter.api.BeforeAll;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 
 class IntervalSetTest {
-
+	
+	static Interval emptyInterval;
+	static Interval universalInterval;
+	
+	@BeforeAll
+	static void initIntervals(){
+	emptyInterval = new Interval(false, true);
+	universalInterval = new Interval(true, false);
+		
+	}
 	
 	@Test
 	void testIntervalSetConstructorGetter() {

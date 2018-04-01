@@ -1,10 +1,20 @@
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class IntervalTest {
+	
+	static Interval emptyInterval;
+	static Interval universalInterval;
+	
+	@BeforeAll
+	static void initIntervals(){
+	emptyInterval = new Interval(false, true);
+	universalInterval = new Interval(true, false);
+		
+	}
 
 
 	@Test
@@ -51,7 +61,7 @@ class IntervalTest {
 		Interval interval1 = new Interval(true,false);
 		assertEquals(Double.NEGATIVE_INFINITY, interval1.getMin());
 		assertEquals(Double.POSITIVE_INFINITY, interval1.getMax());
-
+		
 		// Test empty
 		Interval interval2 = new Interval(false, true);
 		assertThrows(UnsupportedOperationException.class, ()->{
@@ -77,11 +87,9 @@ class IntervalTest {
 	@Test 
 	void itsEmptyTest() {
 
-		Interval emptyInterval = new Interval(false, true);
 		assertTrue(emptyInterval.isEmpty());
-
-		Interval UniversalInterval = new Interval(true, false);
-		assertFalse(UniversalInterval.isEmpty());
+		
+		assertFalse(universalInterval.isEmpty());
 
 		Interval interval1pt2 = new Interval(-12345432123.99, 345654345411.0);
 		assertFalse(interval1pt2.isEmpty());
@@ -91,14 +99,12 @@ class IntervalTest {
 	@Test 
 	void itsUniversalTest() {
 		// To test both constructors
-		Interval UniversalInterval = new Interval(true, false);
+		
+		assertTrue(universalInterval.isUniversal());
+
+		Interval UniversalInterval = new Interval(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		assertTrue(UniversalInterval.isUniversal());
 
-		UniversalInterval = new Interval(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-		assertTrue(UniversalInterval.isUniversal());
-
-
-		Interval emptyInterval = new Interval(false, true);
 		assertFalse(emptyInterval.isUniversal());
 
 		Interval interval1pt2 = new Interval(-12345432123.99, 345654345411.0);
@@ -136,28 +142,22 @@ class IntervalTest {
 		// Case 5 min < max < this.min < this.max
 		interval1 = new Interval(10.9999, 100.0);
 		interval2 = new Interval(-20.0, 10.9998);
-		resultInterval = new Interval(false, true);	// The result we are supposed to get, EMPTY Interval
-		assertEquals(resultInterval, interval1.intersects(interval2));
+		
+		assertEquals(emptyInterval, interval1.intersects(interval2));
 
 		// Case 6  this.min < this.max < min < max
 		interval1 = new Interval(-10.9999, 10.0);
 		interval2 = new Interval(10.0001, 80.0);
-		resultInterval = new Interval(false, true);	// The result we are supposed to get, EMPTY Interval
-		assertEquals(resultInterval, interval1.intersects(interval2));
+		
+		assertEquals(emptyInterval, interval1.intersects(interval2));
 
 		// Case 7 when we try to find the intersection between an Interval and empty Interval
-		interval1 = new Interval(false, true);
 		interval2 = new Interval(10.0001, 80.0);
-		resultInterval = new Interval(false, true);
-		assertEquals(resultInterval, interval1.intersects(interval2));
-
+		assertEquals(emptyInterval, emptyInterval.intersects(interval2));
+		
 		// Case 8 when we try to find the intersection between an empty Interval and Interval
 		interval1 = new Interval(10.0001, 80.0);
-		interval2 = new Interval(false, true);
-		resultInterval = new Interval(false, true);
-		assertEquals(resultInterval, interval1.intersects(interval2));
-
-
+		assertEquals(emptyInterval, interval1.intersects(emptyInterval));
 
 	}
 
@@ -206,26 +206,20 @@ class IntervalTest {
 
 
 		// Case 4 [ -inf, inf ] 
-		interval1  = new Interval(true,false);
-
-		intervalSet = interval1.complement();
-
-		expectedResult1 = new Interval(false, true);
+		
+		intervalSet = universalInterval.complement();
 
 		result1 = intervalSet.getIntervals().get(0);
 
-		assertEquals(expectedResult1, result1);
+		assertEquals(emptyInterval, result1);
 
 		// Case 5 EMPTY Interval
-		interval1  = new Interval(false, true);
-
-		intervalSet = interval1.complement();
-
-		expectedResult1 = new Interval(true, false);
+		
+		intervalSet = emptyInterval.complement();
 
 		result1 = intervalSet.getIntervals().get(0);
 
-		assertEquals(expectedResult1, result1);
+		assertEquals(universalInterval, result1);
 
 	}
 
@@ -262,18 +256,16 @@ class IntervalTest {
 		assertFalse(numberToPositiveInf.contains(Double.NEGATIVE_INFINITY));
 
 		// Test for an interval [-inf, inf]
-		Interval infToInf = new Interval(true, false);
-		assertTrue(infToInf.contains(50.00));
-		assertTrue(infToInf.contains(-50.0000));
-		assertTrue(infToInf.contains(Double.NEGATIVE_INFINITY));
-		assertTrue(infToInf.contains(Double.POSITIVE_INFINITY));
+		assertTrue(universalInterval.contains(50.00));
+		assertTrue(universalInterval.contains(-50.0000));
+		assertTrue(universalInterval.contains(Double.NEGATIVE_INFINITY));
+		assertTrue(universalInterval.contains(Double.POSITIVE_INFINITY));
 
 		// Test for an empty set
-		Interval emptySet = new Interval(false, true);
-		assertFalse(emptySet.contains(50.00001));
-		assertFalse(emptySet.contains(Double.POSITIVE_INFINITY));
-		assertFalse(emptySet.contains(-50.99));
-		assertFalse(emptySet.contains(Double.NEGATIVE_INFINITY));
+		assertFalse(emptyInterval.contains(50.00001));
+		assertFalse(emptyInterval.contains(Double.POSITIVE_INFINITY));
+		assertFalse(emptyInterval.contains(-50.99));
+		assertFalse(emptyInterval.contains(Double.NEGATIVE_INFINITY));
 
 	}
 
@@ -285,7 +277,6 @@ class IntervalTest {
 
 		Interval interval3 = new Interval(103.0,154.0);
 		assertFalse(interval1.equals(interval3));
-
 
 	}
 
@@ -315,9 +306,9 @@ class IntervalTest {
 		assertEquals(set4, set3);
 
 		//case 5 (-inf,+inf) U (18,20) = [ (-inf,+inf) ]
-		Interval t4 = new Interval(true, false);
-		IntervalSet set5 = new IntervalSet(t4);
-		IntervalSet set6 = Interval.union(t4, t2);
+		
+		IntervalSet set5 = new IntervalSet(universalInterval);
+		IntervalSet set6 = Interval.union(universalInterval, t2);
 		assertEquals(set5, set6);
 
 		//case 6 (-inf,20) U (30,+inf) = [ (-inf,20) , (30,+inf) ]
@@ -328,14 +319,14 @@ class IntervalTest {
 		assertEquals(set8, set7);
 
 		//case 7 ø U (-inf,+inf) = [ (-inf,+inf) ]
-		Interval t8 = new Interval(false,true);
-		IntervalSet set9 = Interval.union(t8, t4);
-		IntervalSet set10 = new IntervalSet(t4);
+		
+		IntervalSet set9 = Interval.union(emptyInterval, universalInterval);
+		IntervalSet set10 = new IntervalSet(universalInterval);
 		assertEquals(set10,set9);
 
-		//case 8 ø U (10,15) = [ (10,15) ]
+		//case 8 ø U (10,15) = [ (10,21) ]
 		IntervalSet set11 = new IntervalSet(t1);
-		IntervalSet set12 = Interval.union(t1, t8);
+		IntervalSet set12 = Interval.union(t1, emptyInterval);
 		assertEquals(set11, set12);
 
 	}
@@ -393,7 +384,7 @@ class IntervalTest {
 
 
 		// Case 9 when we compare with an empty set
-		Interval emptyInterval = new Interval(false, true);
+		
 		assertThrows(UnsupportedOperationException.class, ()->{
 			emptyInterval.compareTo(new Interval(10.00, 80.0)
 					);
