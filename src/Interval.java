@@ -4,8 +4,8 @@ public class Interval implements Comparable<Interval> {
 	private double min; 
 	private double max;
 	private boolean empty;
-	
-	
+
+
 	/**
 	 * Create a new Interval, if min is greater than or equal to max throws illegal argument exception. 
 	 * @param min Double minimum value of the tuple
@@ -15,14 +15,14 @@ public class Interval implements Comparable<Interval> {
 	public Interval(double min, double max) { 
 		if (min >= max)
 			throw new IllegalArgumentException("Min cannot be greater or equal to Max");
-		
+
 		this.min = min;
 		this.max = max;
 		this.empty = false;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * If universal is true min will be set to negative infinity and max will be set to positive infinity.
 	 * If empty is true the interval will represent the empty set
@@ -33,22 +33,22 @@ public class Interval implements Comparable<Interval> {
 	public Interval(boolean universal, boolean empty) {
 		if(universal && empty)
 			throw new IllegalArgumentException("An Interval cannot be the Universal set and the empty set at the same time");
-		
+
 		if (universal == false && empty == false)
 			throw new IllegalArgumentException("Must specified one, universal or empty");
-		
+
 		if(universal) {
 			this.min = Double.NEGATIVE_INFINITY;
 			this.max = Double.POSITIVE_INFINITY;
 			this.empty = false;
-			}
-			else {
+		}
+		else {
 			this.min = 0; 
 			this.max = 0; 
 			this.empty = true;
-			}
+		}
 	}
-	
+
 	/**
 	 * Return the min value of the interval, if the set is empty the return a null value
 	 * @return min
@@ -57,11 +57,11 @@ public class Interval implements Comparable<Interval> {
 	public double getMin() throws UnsupportedOperationException {
 		if (this.empty)
 			throw new UnsupportedOperationException("Empty set does not have min");
-		
+
 		else return this.min;
 	}
 
-	
+
 	/**
 	 * Return the max value of the interval, if the set is empty the return a null value
 	 * @return max
@@ -70,11 +70,11 @@ public class Interval implements Comparable<Interval> {
 	public double getMax() throws UnsupportedOperationException {
 		if (this.empty)
 			throw new UnsupportedOperationException("Empty set does not have max"); 
-		
+
 		else return this.max;
 	}
-	
-	
+
+
 	/**
 	 * Returns true if the interval represent the Universal interval [ -inf , inf ]
 	 * @return true if it is the universal interval, false otherwise
@@ -82,8 +82,8 @@ public class Interval implements Comparable<Interval> {
 	public boolean isUniversal() {
 		return this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY;
 	}
-	
-	
+
+
 	/**
 	 * Returns true if empty set
 	 * @return true if empty set, false otherwise
@@ -100,10 +100,16 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public Interval intersects(Interval interval1) {
+		
+		if( this.empty || interval1.isEmpty()) {
+			return new Interval(false, true);
+			
+			
+		}
 
 
 		if(!(interval1.getMax() <= this.min || interval1.getMin() >= this.max)) {
-			
+
 			if(interval1.getMin() > this.min) {
 				if(interval1.getMax() < this.max) {
 					// case 1
@@ -132,7 +138,7 @@ public class Interval implements Comparable<Interval> {
 
 		}
 	}
-	
+
 	/**
 	 * This will find the complement of an interval. The complement is the outer boundaries of the interval and will represented by a pair of
 	 * intervals that group all values that do not fall in the range of the passed interval.
@@ -140,12 +146,12 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public IntervalSet complement() {
-		
-		
+
+
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Takes 2 intervals and if they intersect, will return an interval set with one interval representing both intervals.
 	 * If they don't intersect, it will return an interval set containing both intervals.
@@ -155,16 +161,16 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if any of the intervals is null or if both intervals are equal.
 	 */
 	public static IntervalSet union(Interval interval1, Interval interval2) {
-		
-		
+
+
 		return null;
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	/**
 	 * This method will return true if the element is within the range of the target interval.
 	 * @param element double number to find in range.
@@ -174,27 +180,39 @@ public class Interval implements Comparable<Interval> {
 		if(this.empty) {
 			return false;
 		}
-		
+
 		return element >= this.getMin() && element <= this.getMax();
 	}
-	
-	
-	
+
+
+
 
 	@Override
-	public int compareTo( final Interval t) {
-		//TODO
-		// This is wrong
+	public int compareTo( final Interval t) throws UnsupportedOperationException {
 		
-		if (this.min > t.getMin()) {
+		if (this.empty || t.isEmpty()) {
+			throw new UnsupportedOperationException("Cannot compare to an empty Set");
+		}
+
+		if (this.min < t.getMin()) {
 			return -1;
-		}else if (this.max < t.getMax()) {
+
+		}else if (this.min > t.getMin()) {
 			return 1;
-		} else {
-			return 0;
+		}
+		
+		// If both min's are equal
+		else {
+			// If max is less of equal then return -1
+			if (this.max <= t.getMax()) {	
+				return -1;
+			}
+			else {
+				return 1;
+			}
 		}
 	}
-	
+
 	@Override
 	public boolean equals(Object t) {
 		if ( t instanceof Interval) {

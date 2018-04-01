@@ -380,13 +380,13 @@ class IntervalTest {
 		assertEquals(-1, interval1.compareTo(interval2));
 
 		// Case 7 when we have equal mins and we use the max to decide   this.min == min  && this.max < max
-		interval1 = new Interval(10.00, 10.0);
+		interval1 = new Interval(10.00, 20.0);
 		interval2 = new Interval(10.00, 80.0);
 
 		assertEquals(-1, interval1.compareTo(interval2));
 
 		// Case 8 when we have equal mins and we use the max to decide   this.min == min && max < this.max
-		interval1 = new Interval(10.00, 10.0);
+		interval1 = new Interval(10.00, 200.0);
 		interval2 = new Interval(10.00, 80.0);
 
 		assertEquals(1, interval1.compareTo(interval2));
