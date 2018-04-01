@@ -100,11 +100,11 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public Interval intersects(Interval interval1) {
-		
+
 		if( this.empty || interval1.isEmpty()) {
 			return new Interval(false, true);
-			
-			
+
+
 		}
 
 
@@ -147,8 +147,22 @@ public class Interval implements Comparable<Interval> {
 	 */
 	public IntervalSet complement() {
 
+		if(this.empty) {
+			return new IntervalSet(new Interval(true, false));
+		}
 
-		return null;
+		if(this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY) {
+			return new IntervalSet(new Interval(false, true));
+		}
+		
+		
+		// Falta case para -INF al numero
+		// Falta case para numero a +inf
+		// El ultimo caso donde es de numero a numero y el complement es [ -inf, min - 1] U [ max + 1, inf ]
+
+		else {
+			return null
+		}
 	}
 
 
@@ -189,7 +203,7 @@ public class Interval implements Comparable<Interval> {
 
 	@Override
 	public int compareTo( final Interval t) throws UnsupportedOperationException {
-		
+
 		if (this.empty || t.isEmpty()) {
 			throw new UnsupportedOperationException("Cannot compare to an empty Set");
 		}
@@ -200,7 +214,7 @@ public class Interval implements Comparable<Interval> {
 		}else if (this.min > t.getMin()) {
 			return 1;
 		}
-		
+
 		// If both min's are equal
 		else {
 			// If max is less of equal then return -1
