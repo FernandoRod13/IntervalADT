@@ -333,7 +333,7 @@ class IntervalTest {
 		IntervalSet set10 = new IntervalSet(t4);
 		assertEquals(set10,set9);
 
-		//case 8 ø U (10,15) = [ (10,21) ]
+		//case 8 ø U (10,15) = [ (10,15) ]
 		IntervalSet set11 = new IntervalSet(t1);
 		IntervalSet set12 = Interval.union(t1, t8);
 		assertEquals(set11, set12);

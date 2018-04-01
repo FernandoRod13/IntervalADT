@@ -96,7 +96,7 @@ public class Interval implements Comparable<Interval> {
 	 * Verifies if two Intervals intersect and if they do returns a new Interval with the intersection of them. If they don't
 	 * intersects then return and empty interval
 	 * @param interval1 interval to compare
-	 * @return Returns null if not intersect, otherwise returns a new tuple with the intersection of the two
+	 * @return Returns empty interval if not intersect, otherwise returns a new tuple with the intersection of the two
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public Interval intersects(Interval interval1) {
@@ -161,9 +161,30 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if any of the intervals is null or if both intervals are equal.
 	 */
 	public static IntervalSet union(Interval interval1, Interval interval2) {
-
-
-		return null;
+		if (interval1 == null || interval2 == null || interval1.equals(interval2)) {
+			throw new IllegalArgumentException();
+		}
+		if ( interval1.isUniversal() || interval2.isUniversal()) {
+			return new IntervalSet(new Interval(true,false));
+		}
+		
+		if (interval1.isEmpty() || interval2.isEmpty()) {
+			if (interval2.isEmpty()) {
+				return new IntervalSet(interval1);
+			}else {
+				return new IntervalSet(interval2); 
+			}
+		}
+		
+		if (!interval1.intersects(interval2).isEmpty()) {
+			if (interval1.compareTo(interval2) < 0) {
+				return new IntervalSet( new Interval(interval1.min, interval2.max));
+			}else {
+				return new IntervalSet( new Interval(interval2.min, interval1.max));
+			}
+		} else {
+			return new IntervalSet(interval1,interval2);
+		}
 	}
 
 
@@ -199,6 +220,8 @@ public class Interval implements Comparable<Interval> {
 
 		}else if (this.min > t.getMin()) {
 			return 1;
+		} else if (this.min == t.getMin() && this.max == t.getMax()) {
+			return 0;
 		}
 		
 		// If both min's are equal

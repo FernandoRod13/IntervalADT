@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class IntervalSet {
@@ -58,9 +59,46 @@ public class IntervalSet {
 	 * @throws IllegalArgumentException if a tuple with the same min and max exists or if the interval passed is null.
 	 */
 	public void addInterval(Interval i) {
-		//TODO
 		if(i == null) {
 			throw new IllegalArgumentException("Interval cannot be null");
+		}
+		if (this.intervals.size() == 0) {
+			this.intervals.add(0, i);
+			return;
+		} else {
+			Interval interval = this.intervals.get(0);
+			int index = 0;
+			while (index < this.intervals.size()) {
+				// check if interval matches the current to end execution
+				if (interval.compareTo(i) == 0 ) {
+					return;
+				//check if i is bigger than interval
+				} else if ( i.compareTo(interval) > 0) {
+					if (this.intervals.size() == 1) {
+						this.intervals.add(i);
+						return;
+					}
+					//check if i intersects with the current interval to replace interval with intersection and end
+					Interval intersection = i.intersects(interval);
+					if ( !intersection.isEmpty()) {
+						this.intervals.set(index, intersection);
+						return;
+					}
+				//if i is smaller than interval 
+				} else {
+					if ( this.intervals.size() == 1) {
+						this.intervals.add(0, i);
+						return;
+					} else {
+						//but also larger than the previous 
+						if (i.compareTo(this.intervals.get(index - 1)) > 0) {
+							this.intervals.add(index, i);
+							return;
+						}
+					}
+				}
+				index ++;
+			}
 		}
 	}
 	
@@ -69,14 +107,41 @@ public class IntervalSet {
 	 * @param i interval to remove from interval set
 	 * @return The removed interval from the interval set
 	 * @throws NoSuchElementException if the interval is not in the interval set.
+	 * @throws IllegalArgumentException if the parameter is null.
 	 */
 	public Interval removeInterval(Interval i) throws NoSuchElementException {
-
-		//TODO
-		return null;
+		if ( i == null) {
+			throw new IllegalArgumentException();
+		}
+		int index =0;
+		while (index < this.intervals.size()) {
+			if (this.intervals.get(index).equals(i)) {
+				return this.intervals.remove(index);
+			}
+			index ++;
+		}
+		throw new NoSuchElementException();
 	}
 	
-	
+	@Override
+	public boolean equals(Object o) {
+		if ( o instanceof IntervalSet) {
+			IntervalSet o1 = (IntervalSet) o;
+			if ( o1.intervals.size() != this.intervals.size()) {
+				return false;
+			} else {
+				int index = 0;
+				while (index < this.intervals.size()) {
+					if (!this.intervals.get(index).equals(o1.intervals.get(index))) {
+						return false;
+					}
+					index++;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 	
 	
 	@Override
