@@ -1,4 +1,11 @@
-
+/**
+ * The Interval class represents a one dimensional interval, that is, all the numbers between two given numbers which in this class 
+ * are represented by min and max. This Interval is inclusive which means that min and max are contain in the range of numbers inside the interval. 
+ * This class also provide methods for union, intersection and complements of an Interval. It also includes a method for checking whether an interval 
+ * contains a point given as a parameter.
+ * @author Cristian Melendez and Fernando Rodriguez
+ *
+ */
 public class Interval implements Comparable<Interval> {
 
 	private double min; 
@@ -155,18 +162,14 @@ public class Interval implements Comparable<Interval> {
 			return new IntervalSet(new Interval(false, true));
 		}
 		
-		
-		
-		
-		// Falta case para -INF al numero
 		if(this.min == Double.NEGATIVE_INFINITY) {
 			return new IntervalSet(new Interval(this.max + 0.001, Double.POSITIVE_INFINITY));
 		}
-		// Falta case para numero a +inf
+		
 		if(this.max == Double.POSITIVE_INFINITY) {
 			return new IntervalSet(new Interval(Double.NEGATIVE_INFINITY, this.min - 0.001));
 		}
-		// El ultimo caso donde es de numero a numero y el complement es [ -inf, min - 1] U [ max + 1, inf ]
+
 		if( !this.isEmpty() && !this.isUniversal()) {
 			Interval i1 = new Interval(Double.NEGATIVE_INFINITY, this.min - 0.001);
 			Interval i2 = new Interval(this.max + 0.001, Double.POSITIVE_INFINITY);
@@ -191,7 +194,7 @@ public class Interval implements Comparable<Interval> {
 		if ( interval1.isUniversal() || interval2.isUniversal()) {
 			return new IntervalSet(new Interval(true,false));
 		}
-		
+
 		if (interval1.isEmpty() || interval2.isEmpty()) {
 			if (interval2.isEmpty()) {
 				return new IntervalSet(interval1);
@@ -199,7 +202,7 @@ public class Interval implements Comparable<Interval> {
 				return new IntervalSet(interval2); 
 			}
 		}
-		
+
 		if (!interval1.intersects(interval2).isEmpty()) {
 			if (interval1.compareTo(interval2) < 0) {
 				return new IntervalSet( new Interval(interval1.min, interval2.max));
@@ -264,7 +267,32 @@ public class Interval implements Comparable<Interval> {
 	public boolean equals(Object t) {
 		if ( t instanceof Interval) {
 			Interval t1 = (Interval) t;
-			return this.max == t1.max && this.min == t1.min;
+
+			
+			// Both intervals are empty
+			if(this.empty && t1.isEmpty()) {
+				return true;
+			}
+			// One interval is empty and the other is not
+			else if(this.empty && !t1.isEmpty() || !this.empty && t1.isEmpty()) {
+				return false;
+			}
+			// Both intervals are the universal interval 
+			if(this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
+				return true;
+			}
+			
+			
+			double epsilon = 1e-15;
+			if(this.min == Double.NEGATIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY) {
+				return Math.abs(this.max - t1.getMax()) < epsilon;
+			}
+
+			if(this.max == Double.POSITIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
+				return Math.abs(this.min - t1.getMin()) < epsilon;
+			}
+
+			return Math.abs(this.min - t1.getMin()) < epsilon && Math.abs(this.max - t1.getMax()) < epsilon;
 		}
 		return false;
 	}

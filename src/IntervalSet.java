@@ -1,7 +1,13 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+/**
+ * The IntervalSet class represents a set of intervals, that is, a group of intervals in which each one represents all the
+ *  numbers between their min and max values. 
 
+ * @author Cristian Melendez and Fernando Rodriguez
+ *
+ */
 public class IntervalSet {
 	
 	private ArrayList<Interval> intervals;
@@ -121,6 +127,21 @@ public class IntervalSet {
 			index ++;
 		}
 		throw new NoSuchElementException();
+	}
+	
+	
+	/**
+	 * Return true if the element given as parameter is find in one of the intervals
+	 * @param element
+	 * @return true if the Set of intervals contains the element, false otherwise
+	 */
+	public boolean contains(double element) {
+		for(int i = 0; i < this.intervals.size(); i++) {
+			if( intervals.get(i).contains(element)){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@Override

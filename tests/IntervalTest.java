@@ -3,12 +3,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-class IntervalTest {
+/**
+ * This class is designed to test the Interval class  
+ * @author Cristian Melendez and Fernando Rodriguez
+ *
+ */
+public class IntervalTest {
 	
 	static Interval emptyInterval;
 	static Interval universalInterval;
-	
+	// Are use in multiple tests therefore we reuse them
 	@BeforeAll
 	static void initIntervals(){
 	emptyInterval = new Interval(false, true);
@@ -17,6 +21,9 @@ class IntervalTest {
 	}
 
 
+	/**
+	 * This method test the constructors of the Interval class
+	 */
 	@Test
 	void IntervalConstructorGetter() {
 		// Illegal argument exception
@@ -54,6 +61,9 @@ class IntervalTest {
 
 	}
 
+	/**
+	 * This method tests the second constructor of the Interval class
+	 */
 	@Test
 	void secondConstructorTester() {
 
@@ -84,6 +94,9 @@ class IntervalTest {
 
 	}
 
+	/**
+	 * This method test for the isEmpty method
+	 */
 	@Test 
 	void itsEmptyTest() {
 
@@ -96,6 +109,9 @@ class IntervalTest {
 
 	}
 
+	/** 
+	 * Test for the universal Interval
+	 */
 	@Test 
 	void itsUniversalTest() {
 		// To test both constructors
@@ -112,6 +128,9 @@ class IntervalTest {
 
 	}
 
+	/**
+	 * This method test that the Intersection method works correctly.
+	 */
 	@Test
 	void IntervalIntersectionTest() {
 		// Testing Cases and boundaries
@@ -161,6 +180,9 @@ class IntervalTest {
 
 	}
 
+	/**
+	 * This method test that the complement method works correctly
+	 */
 	@Test
 	void testComplement() {
 
@@ -223,6 +245,9 @@ class IntervalTest {
 
 	}
 
+	/** 
+	 * This method tests that the contains method works correctly
+	 */
 	@Test
 	void testContains() {
 
@@ -269,6 +294,9 @@ class IntervalTest {
 
 	}
 
+	/**
+	 * This method tests that the equal's method works correctly
+	 */
 	@Test
 	void intervalEqualityTest() {
 		Interval interval1 = new Interval(10.0,15.0);
@@ -280,6 +308,9 @@ class IntervalTest {
 
 	}
 
+	/**
+	 * This method tests that the Union method works correctly
+	 */
 	@Test
 	void intervalUnionTest() {
 		//case 1 (10,15) U (18,20) = [ (10,15) , (18,20) ]
@@ -314,6 +345,7 @@ class IntervalTest {
 		//case 6 (-inf,20) U (30,+inf) = [ (-inf,20) , (30,+inf) ]
 		Interval t5 = new Interval(Double.NEGATIVE_INFINITY, 20);
 		Interval t6 = new Interval(30, Double.POSITIVE_INFINITY);
+		
 		IntervalSet set7 = Interval.union(t5, t6);
 		IntervalSet set8 = new IntervalSet(t5, t6);
 		assertEquals(set8, set7);
@@ -331,6 +363,9 @@ class IntervalTest {
 
 	}
 
+	/** 
+	 * This method tests that the compareTo method works correctly
+	 */
 	@Test
 	void compareToTest() {
 
