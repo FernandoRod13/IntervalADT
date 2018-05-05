@@ -1,6 +1,7 @@
 /**
  * The Interval class represents a one dimensional interval, that is, all the numbers between two given numbers which in this class 
- * are represented by min and max. This Interval is inclusive which means that min and max are contain in the range of numbers inside the interval. 
+ * are represented by min and max. 
+
  * This class also provide methods for union, intersection and complements of an Interval. It also includes a method for checking whether an interval 
  * contains a point given as a parameter.
  * @author Cristian Melendez and Fernando Rodriguez
@@ -8,10 +9,14 @@
  */
 public class Interval implements Comparable<Interval> {
 
-	private double min; 
+	private double min;
 	private double max;
 	private boolean empty;
+	private boolean minInclusive;
+	private boolean maxInclusive;
 
+	//	private final double pos_infinity = Double.POSITIVE_INFINITY;
+	//	private final double neg_infinity = Double.POSITIVE_INFINITY;
 
 	/**
 	 * Create a new Interval, if min is greater than or equal to max throws illegal argument exception. 
@@ -19,13 +24,16 @@ public class Interval implements Comparable<Interval> {
 	 * @param max Double maximum value of the tuple
 	 * @throws IllegalArgumentException if min is greater or equal to max
 	 */
-	public Interval(double min, double max) { 
+	public Interval(double min, boolean minInclusive, double max, boolean maxInclusive) { 
 		if (min >= max)
 			throw new IllegalArgumentException("Min cannot be greater or equal to Max");
 
 		this.min = min;
+		this.minInclusive = minInclusive;
 		this.max = max;
+		this.maxInclusive = maxInclusive;
 		this.empty = false;
+
 	}
 
 
@@ -46,12 +54,16 @@ public class Interval implements Comparable<Interval> {
 
 		if(universal) {
 			this.min = Double.NEGATIVE_INFINITY;
+			this.minInclusive = true;
 			this.max = Double.POSITIVE_INFINITY;
+			this.maxInclusive = true;
 			this.empty = false;
 		}
 		else {
 			this.min = 0; 
+			this.minInclusive = false;
 			this.max = 0; 
+			this.maxInclusive = false;
 			this.empty = true;
 		}
 	}
@@ -65,7 +77,17 @@ public class Interval implements Comparable<Interval> {
 		if (this.empty)
 			throw new UnsupportedOperationException("Empty set does not have min");
 
-		else return this.min;
+		return this.min;
+	}
+	/**
+	 * Return true if the min value is Inclusive, otherwise return false
+	 * @return minInclusive
+	 */
+	public boolean isMinInclusive() {
+		if (this.empty)
+			throw new UnsupportedOperationException("Empty set does not have min");
+
+		return this.minInclusive;
 	}
 
 
@@ -78,7 +100,18 @@ public class Interval implements Comparable<Interval> {
 		if (this.empty)
 			throw new UnsupportedOperationException("Empty set does not have max"); 
 
-		else return this.max;
+		return this.max;
+	}
+
+	/**
+	 * Return true if the max value is Inclusive, otherwise return false
+	 * @return maxInclusive
+	 */
+	public boolean isMaxInclusive() {
+		if (this.empty)
+			throw new UnsupportedOperationException("Empty set does not have max"); 
+
+		return this.maxInclusive;
 	}
 
 
@@ -161,11 +194,11 @@ public class Interval implements Comparable<Interval> {
 		if(this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY) {
 			return new IntervalSet(new Interval(false, true));
 		}
-		
+
 		if(this.min == Double.NEGATIVE_INFINITY) {
 			return new IntervalSet(new Interval(this.max + 0.001, Double.POSITIVE_INFINITY));
 		}
-		
+
 		if(this.max == Double.POSITIVE_INFINITY) {
 			return new IntervalSet(new Interval(Double.NEGATIVE_INFINITY, this.min - 0.001));
 		}
@@ -229,7 +262,28 @@ public class Interval implements Comparable<Interval> {
 			return false;
 		}
 
-		return element >= this.getMin() && element <= this.getMax();
+
+		if(this.minInclusive && this.maxInclusive) {
+			
+			return element >= this.getMin() && element <= this.getMax();
+		}
+		
+		else if(this.minInclusive && !this.maxInclusive) {
+			
+			return element >= this.getMin() && element <= this.getMax() - 0.00000001;
+		}
+		
+		else if(!this.minInclusive && this.maxInclusive) {
+			
+			return element >= this.getMin() + 0.00000001 && element <= this.getMax();
+		}
+		
+		else {
+			
+			return element >= this.getMin() + 0.00000001 && element <= this.getMax() - 0.00000001;
+		}
+
+
 	}
 
 
@@ -242,33 +296,178 @@ public class Interval implements Comparable<Interval> {
 			throw new UnsupportedOperationException("Cannot compare to an empty Set");
 		}
 
-		if (this.min < t.getMin()) {
-			return -1;
+		// Both min are equal in terms of Inclusiveness or exclusiveness
+		if (this.minInclusive == t.isMinInclusive()) {
 
-		}else if (this.min > t.getMin()) {
-			return 1;
-		} else if (this.min == t.getMin() && this.max == t.getMax()) {
-			return 0;
-		}
 
-		// If both min's are equal
-		else {
-			// If max is less of equal then return -1
-			if (this.max <= t.getMax()) {	
+			if (this.min < t.getMin()) {
 				return -1;
 			}
-			else {
+			else if (this.min > t.getMin()) {
 				return 1;
+
+			} 
+			else {
+
+				if(this.maxInclusive == t.isMaxInclusive()) {
+
+					if(this.max == t.getMax()) {
+						return 0;
+					}
+					if (this.max < t.getMax()) {	
+						return -1;
+					}
+					else {
+						return 1;
+					}
+				}
+
+
+				else if(this.maxInclusive && !t.isMaxInclusive()) {
+					if(this.max > t.getMax() - 0.00000001) {
+						return 1;
+					}
+					if(this.max < t.getMax() - 0.00000001) {	
+						return -1;
+					}
+					else {
+						return 0;
+					}
+				}
+				else {
+					if(this.max > t.getMax() + 0.00000001) {
+						return 1;
+					}
+					if (this.max < t.getMax()+ 0.00000001) {	
+						return -1;
+					}
+					else {
+						return 0;
+					}
+
+
+				}
+
+			}
+		}
+		// When they have different Inclusiveness
+		else {
+			// min
+
+			if (this.minInclusive && !t.isMinInclusive()) {
+				if(this.min > t.getMin() - 0.00000001) {
+					return 1;
+				}
+				if(this.min < t.getMin() - 0.00000001) {	
+					return -1;
+				}
+				else 
+				{
+
+					if(this.maxInclusive == t.isMaxInclusive()) {
+
+						if(this.max == t.getMax()) {
+							return 0;
+						}
+						if (this.max < t.getMax()) {	
+							return -1;
+						}
+						else {
+							return 1;
+						}
+					}
+
+
+					else if(this.maxInclusive && !t.isMaxInclusive()) {
+						if(this.max > t.getMax() - 0.00000001) {
+							return 1;
+						}
+						if(this.max < t.getMax() - 0.00000001) {	
+							return -1;
+						}
+						else {
+							return 0;
+						}
+					}
+					// !this.maxInclusive && t.isMaxInclusive()
+					else {
+						if(this.max > t.getMax() + 0.00000001) {
+							return 1;
+						}
+						if (this.max < t.getMax()+ 0.00000001) {	
+							return -1;
+						}
+						else {
+							return 0;
+						}
+
+
+					}
+
+				}
+			}
+			else {
+
+				if(this.min > t.getMin() + 0.00000001) {
+					return 1;
+				}
+				if(this.min < t.getMin() + 0.00000001) {	
+					return -1;
+				}
+				else 
+				{
+
+					if(this.maxInclusive == t.isMaxInclusive()) {
+
+						if(this.max == t.getMax()) {
+							return 0;
+						}
+						if (this.max < t.getMax()) {	
+							return -1;
+						}
+						else {
+							return 1;
+						}
+					}
+
+
+					else if(this.maxInclusive && !t.isMaxInclusive()) {
+						if(this.max > t.getMax() - 0.00000001) {
+							return 1;
+						}
+						if(this.max < t.getMax() - 0.00000001) {	
+							return -1;
+						}
+						else {
+							return 0;
+						}
+					}
+					else {
+						if(this.max > t.getMax() + 0.00000001) {
+							return 1;
+						}
+						if (this.max < t.getMax()+ 0.00000001) {	
+							return -1;
+						}
+						else {
+							return 0;
+						}
+
+
+					}
+
+				}
 			}
 		}
 	}
+
 
 	@Override
 	public boolean equals(Object t) {
 		if ( t instanceof Interval) {
 			Interval t1 = (Interval) t;
 
-			
+
 			// Both intervals are empty
 			if(this.empty && t1.isEmpty()) {
 				return true;
@@ -281,26 +480,111 @@ public class Interval implements Comparable<Interval> {
 			if(this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
 				return true;
 			}
-			
-			
-			double epsilon = 1e-15;
-			if(this.min == Double.NEGATIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY) {
-				return Math.abs(this.max - t1.getMax()) < epsilon;
+
+			double epsilon = 1e-8;
+			// Both min and max are equal in terms of Inclusiveness or exclusiveness
+			if (this.minInclusive == t1.isMinInclusive() && this.maxInclusive == t1.isMaxInclusive()) {
+
+
+				// [ min, max] compare to [ min, max ]
+				if (this.minInclusive && this.maxInclusive) {
+
+					if(this.min == Double.NEGATIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY) {
+						return Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+
+					if(this.max == Double.POSITIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
+						return Math.abs(this.min - t1.getMin()) < epsilon;
+					}
+					else {
+						return Math.abs(this.min - t1.getMin()) < epsilon && Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+				}
+
+				// [ min, max) compare to [ min, max )
+				if(this.minInclusive && !this.maxInclusive) {
+					if(this.min == Double.NEGATIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY) {
+						return Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+
+					if(this.max == Double.POSITIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
+						return Math.abs(this.min - t1.getMin()) < epsilon;
+					}
+					else {
+						return Math.abs(this.min - t1.getMin()) < epsilon && Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+				}
+				// ( min, max] compare to ( min, max ]
+				if(!this.minInclusive && this.maxInclusive) {
+					if(this.min == Double.NEGATIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY) {
+						return Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+
+					if(this.max == Double.POSITIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
+						return Math.abs(this.min - t1.getMin()) < epsilon;
+					}
+					else {
+						return Math.abs(this.min - t1.getMin()) < epsilon && Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+				}
+
+				// ( min, max) compare to ( min, max )
+				else {
+					if(this.min == Double.NEGATIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY) {
+						return Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+
+					if(this.max == Double.POSITIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
+						return Math.abs(this.min - t1.getMin()) < epsilon;
+					}
+					else {
+						return Math.abs(this.min - t1.getMin()) < epsilon && Math.abs(this.max - t1.getMax()) < epsilon;
+					}
+				}
+
+			}
+			else {
+				return false;
 			}
 
-			if(this.max == Double.POSITIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
-				return Math.abs(this.min - t1.getMin()) < epsilon;
-			}
-
-			return Math.abs(this.min - t1.getMin()) < epsilon && Math.abs(this.max - t1.getMax()) < epsilon;
 		}
-		return false;
+
+		else {
+			return false;
+		}
 	}
 
 	@Override
 	public String toString() {
-		return "[" + this.min + ", " + this.max + "]";
+		if (this.isEmpty()) {
+			return "∅";
+		}
+
+		if( this.minInclusive && this.maxInclusive) {
+			return "[" + this.min + ", " + this.max + "]";
+		}
+
+		if( this.minInclusive && !this.maxInclusive) {
+			return "[" + this.min + ", " + this.max + ")";
+		}
+
+		if( !this.minInclusive && this.maxInclusive) {
+			return "(" + this.min + ", " + this.max + "]";
+		}
+
+		else {
+			return "(" + this.min + ", " + this.max + ")";
+		}
 	}
+
+
+
+
+
+
+
+
+
 
 
 } 
