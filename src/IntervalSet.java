@@ -56,7 +56,49 @@ public class IntervalSet {
 	public ArrayList<Interval> getIntervals() {
 		return intervals;
 	}
-
+	
+	/**
+	 * Takes two IntervalSets and returns the union of both in the form of a new IntervalSet
+	 * @param set Target IntervalSet
+	 * @return resulting IntervalSet with the union of both IntervalSets
+	 */
+	public IntervalSet union(IntervalSet set) {
+		IntervalSet res = new IntervalSet(this.intervals.get(0));
+		for(int i = 1; i < this.intervals.size(); i++) {
+			res.addInterval(this.intervals.get(i));
+		}
+		for(Interval i: set.intervals) {
+			res.addInterval(i);
+		}
+		return res;
+	}
+	
+	/**
+	 * 
+	 * @param set
+	 * @return
+	 */
+	public IntervalSet intersection(IntervalSet set) {
+		IntervalSet res = new IntervalSet( new Interval(false, true));
+		for(Interval i1: this.intervals) {
+			for(Interval i2: set.intervals) {
+				Interval inter = i1.intersects(i2);
+				if (inter.isEmpty()) {
+					res.addInterval(inter);
+				}
+			}
+		}
+		return res;
+	}
+	
+	/**
+	 * 
+	 * @param set
+	 * @return
+	 */
+	public IntervalSet complement(IntervalSet set) {
+		return null;
+	}
 	
 	/**
 	 * Insert a new tuple in ascending order to the Interval set. If the tuple intersects another tuple,
@@ -64,7 +106,7 @@ public class IntervalSet {
 	 * @param i new tuple to insert.
 	 * @throws IllegalArgumentException if a tuple with the same min and max exists or if the interval passed is null.
 	 */
-	public void addInterval(Interval i) {
+	protected void addInterval(Interval i) {
 		if(i == null) {
 			throw new IllegalArgumentException("Interval cannot be null");
 		}
@@ -115,7 +157,7 @@ public class IntervalSet {
 	 * @throws NoSuchElementException if the interval is not in the interval set.
 	 * @throws IllegalArgumentException if the parameter is null.
 	 */
-	public Interval removeInterval(Interval i) throws NoSuchElementException {
+	protected Interval removeInterval(Interval i) throws NoSuchElementException {
 		if ( i == null) {
 			throw new IllegalArgumentException();
 		}
