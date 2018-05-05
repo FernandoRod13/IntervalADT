@@ -15,9 +15,7 @@ public class Interval implements Comparable<Interval> {
 	private boolean minInclusive;
 	private boolean maxInclusive;
 
-	//	private final double pos_infinity = Double.POSITIVE_INFINITY;
-	//	private final double neg_infinity = Double.POSITIVE_INFINITY;
-
+	
 	/**
 	 * Create a new Interval, if min is greater than or equal to max throws illegal argument exception. 
 	 * @param min Double minimum value of the tuple
@@ -151,6 +149,8 @@ public class Interval implements Comparable<Interval> {
 		if(!(interval1.getMax() <= this.min || interval1.getMin() >= this.max)) {
 
 			if(interval1.getMin() > this.min) {
+				
+				
 				if(interval1.getMax() < this.max) {
 					// case 1
 					return new Interval(interval1.getMin(),interval1.getMax());
@@ -191,24 +191,23 @@ public class Interval implements Comparable<Interval> {
 			return new IntervalSet(new Interval(true, false));
 		}
 
-		if(this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY) {
+		if(this.isUniversal()) {
 			return new IntervalSet(new Interval(false, true));
 		}
 
 		if(this.min == Double.NEGATIVE_INFINITY) {
-			return new IntervalSet(new Interval(this.max + 0.001, Double.POSITIVE_INFINITY));
+			return new IntervalSet(new Interval(this.max, !this.isMaxInclusive(), Double.POSITIVE_INFINITY, true));
 		}
 
 		if(this.max == Double.POSITIVE_INFINITY) {
-			return new IntervalSet(new Interval(Double.NEGATIVE_INFINITY, this.min - 0.001));
+			return new IntervalSet(new Interval(Double.NEGATIVE_INFINITY, true, this.min, !this.isMinInclusive()));
 		}
 
-		if( !this.isEmpty() && !this.isUniversal()) {
-			Interval i1 = new Interval(Double.NEGATIVE_INFINITY, this.min - 0.001);
-			Interval i2 = new Interval(this.max + 0.001, Double.POSITIVE_INFINITY);
+		else{
+			Interval i1 = new Interval(Double.NEGATIVE_INFINITY, true,  this.min, !this.isMinInclusive());
+			Interval i2 = new Interval(this.max, !this.isMaxInclusive(), Double.POSITIVE_INFINITY, true);
 			return new IntervalSet(i1, i2);
 		}
-		return null;
 	}
 
 
@@ -237,10 +236,12 @@ public class Interval implements Comparable<Interval> {
 		}
 
 		if (!interval1.intersects(interval2).isEmpty()) {
+			
+			
 			if (interval1.compareTo(interval2) < 0) {
-				return new IntervalSet( new Interval(interval1.min, interval2.max));
+				return new IntervalSet( new Interval(interval1.min, interval1.isMinInclusive(), interval2.max, interval2.isMaxInclusive()));
 			}else {
-				return new IntervalSet( new Interval(interval2.min, interval1.max));
+				return new IntervalSet( new Interval(interval2.min, interval2.isMinInclusive(), interval1.max, interval1.isMaxInclusive()));
 			}
 		} else {
 			return new IntervalSet(interval1,interval2);
