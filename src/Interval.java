@@ -52,7 +52,7 @@ public class Interval implements Comparable<Interval> {
 
 	}
 
-	
+
 
 	/**
 	 * If universal is true min will be set to negative infinity and max will be set to positive infinity.
@@ -156,31 +156,31 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public Interval intersects(Interval interval1) {
-		
+
 		// Intersection between Empty sets is empty
 		if( this.empty || interval1.isEmpty()) {
 			return new Interval(false, true);
 		}
-		
+
 		// If Intervals Intersect
 		if(!(interval1.getMax() <= this.min || interval1.getMin() >= this.max)) {
-			
-			
+
+
 			// If this.min < min
 			if(interval1.getMin() > this.min) {
-				
+
 				//  this.min < min < max < this.max
 				if(interval1.getMax() < this.max) {
-					
+
 					return new Interval(interval1.getMin(),interval1.isMinInclusive(), interval1.getMax(), interval1.isMaxInclusive());
 				}
 				// this.min < min < this.max < max
 				else if(interval1.getMax() > this.max)  {
-					
+
 					return new Interval(interval1.getMin(), interval1.isMinInclusive(), this.max, this.isMaxInclusive());
 				}
-				
-					// max == this.max
+
+				// max == this.max
 				else {
 					if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
 						return new Interval(interval1.getMin(), interval1.isMinInclusive(), interval1.max, true);
@@ -193,18 +193,18 @@ public class Interval implements Comparable<Interval> {
 
 			// min < this.min
 			else if(interval1.getMin() < this.min){
-				
+
 				// min < this.min < max < this.max
 				if(interval1.getMax() < this.max) {
-					
+
 					return new Interval(this.min, this.isMinInclusive(), interval1.getMax(), interval1.isMaxInclusive());
 				}
 				// min < this.min < this.max < max 
 				else if(interval1.getMax() > this.max) {
-					
+
 					return new Interval(this.min, this.isMinInclusive(), this.max, this.isMaxInclusive());
 				}
-				
+
 				// max == this.max
 				else {
 					if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
@@ -215,12 +215,12 @@ public class Interval implements Comparable<Interval> {
 					}
 				}
 			}
-			
+
 			// min == this.min
 			else {
 				// min == this.min < max < this.max
 				if(interval1.getMax() < this.max) {
-					
+
 					if(interval1.isMinInclusive() && this.isMinInclusive()) {
 						return new Interval(this.getMin(), true , interval1.max, interval1.isMaxInclusive());
 					}
@@ -228,10 +228,10 @@ public class Interval implements Comparable<Interval> {
 						return new Interval(this.getMin(), false , interval1.max, interval1.isMaxInclusive());
 					}
 				}
-				
+
 				// min == this.min < this.max < max
 				else if(interval1.getMax() > this.max) {
-					
+
 					if(interval1.isMinInclusive() && this.isMinInclusive()) {
 						return new Interval(this.getMin(), true , this.max, this.isMaxInclusive());
 					}
@@ -239,12 +239,12 @@ public class Interval implements Comparable<Interval> {
 						return new Interval(this.getMin(), false , this.max, this.isMaxInclusive());
 					}
 				}
-				
+
 				// max == this.max
 				else {
 					// min == this.min < max == this.max
 					if(interval1.isMinInclusive() && this.isMinInclusive()) {
-						
+
 						if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
 							return new Interval(this.min, true, this.max, true);
 						}
@@ -253,7 +253,7 @@ public class Interval implements Comparable<Interval> {
 						}
 					}
 					else {
-						
+
 						if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
 							return new Interval(this.min, false, this.max, true);
 						}
@@ -262,12 +262,12 @@ public class Interval implements Comparable<Interval> {
 						}
 					}
 				}
-				
+
 			}
 		}
 
 		else {
-			// case 5 && 6
+			// case in which there is no Intersection
 			return new Interval(false, true);
 
 		}
@@ -499,10 +499,7 @@ public class Interval implements Comparable<Interval> {
 						else {
 							return 0;
 						}
-
-
 					}
-
 				}
 			}
 			else {
@@ -541,6 +538,7 @@ public class Interval implements Comparable<Interval> {
 							return 0;
 						}
 					}
+
 					else {
 						if(this.max > t.getMax() + 0.00000001) {
 							return 1;
@@ -551,10 +549,7 @@ public class Interval implements Comparable<Interval> {
 						else {
 							return 0;
 						}
-
-
 					}
-
 				}
 			}
 		}
@@ -659,31 +654,26 @@ public class Interval implements Comparable<Interval> {
 			return "∅";
 		}
 
-		if( this.minInclusive && this.maxInclusive) {
-			return "[" + this.min + ", " + this.max + "]";
-		}
+		else if(this.minInclusive) {
 
-		if( this.minInclusive && !this.maxInclusive) {
-			return "[" + this.min + ", " + this.max + ")";
-		}
+			if(this.isMaxInclusive()) {
 
-		if( !this.minInclusive && this.maxInclusive) {
-			return "(" + this.min + ", " + this.max + "]";
+				return "[ " + this.min + " , " + this.max + " ]";
+			}
+			else {
+				return "[ " + this.min + " , " + this.max + " )";
+			}
 		}
 
 		else {
-			return "(" + this.min + ", " + this.max + ")";
+			if(this.maxInclusive) {
+
+				return "( " + this.min + " , " + this.max + " ]";
+			}
+			else {
+				return "( " + this.min + " , " + this.max + " )";
+			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
 
 } 

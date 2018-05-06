@@ -1,9 +1,16 @@
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.BeforeAll;
+import static org.junit.Assume.assumeNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * This class is designed to test the IntervalSet class  
@@ -56,6 +63,28 @@ public class IntervalSetTest {
 		assertEquals(list2, set4.getIntervals());
 
 	}
+	
+	@DisplayName("IntervalSet invariant test with general case")
+	@ParameterizedTest
+	@MethodSource("invariantBasicTestProvider")
+	void testInvariantBasic(IntervalSet set, Interval i1, IntervalSet res) {
+		assumeNotNull(set);
+		assumeNotNull(i1);
+		assumeNotNull(res);
+		set.addInterval(i1);
+		assertEquals(res, set);
+		
+	}
+	
+	static Stream<Arguments> invariantBasicTestProvider() {
+	    return Stream.of(
+	        Arguments.of(new IntervalSet(new Interval(10,20)), new Interval(15,25), new IntervalSet(new Interval(10,25))),
+	        Arguments.of(new IntervalSet(new Interval(10,20)), new Interval(25,50), new IntervalSet(new Interval(10,20), new Interval(25,50))),
+	        Arguments.of(new IntervalSet(new Interval(true,false)), new Interval(25,50), new IntervalSet(new Interval(true,false)))
+	    );
+	}
+	
+	
 	/**
 	 * This method tests that the Remove Interval method works correctly
 	 */

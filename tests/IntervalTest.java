@@ -1,23 +1,47 @@
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assume.assumeNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assume.*;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.stream.Stream;
+import java.util.Random;
+
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.runner.RunWith;
+
+import com.pholser.junit.quickcheck.From;
+import com.pholser.junit.quickcheck.Property;
+import com.pholser.junit.quickcheck.generator.InRange;
+import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+
+
+
+import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+
 /**
  * This class is designed to test the Interval class  
  * @author Cristian Melendez and Fernando Rodriguez
  *
  */
+@RunWith(JUnitQuickcheck.class)
 public class IntervalTest {
-	
+
 	static Interval emptyInterval;
 	static Interval universalInterval;
 	// Are use in multiple tests therefore we reuse them
 	@BeforeAll
 	static void initIntervals(){
-	emptyInterval = new Interval(false, true);
-	universalInterval = new Interval(true, false);
-		
+		emptyInterval = new Interval(false, true);
+		universalInterval = new Interval(true, false);
+
 	}
 
 
@@ -71,7 +95,7 @@ public class IntervalTest {
 		Interval interval1 = new Interval(true,false);
 		assertEquals(Double.NEGATIVE_INFINITY, interval1.getMin());
 		assertEquals(Double.POSITIVE_INFINITY, interval1.getMax());
-		
+
 		// Test empty
 		Interval interval2 = new Interval(false, true);
 		assertThrows(UnsupportedOperationException.class, ()->{
@@ -101,7 +125,7 @@ public class IntervalTest {
 	void itsEmptyTest() {
 
 		assertTrue(emptyInterval.isEmpty());
-		
+
 		assertFalse(universalInterval.isEmpty());
 
 		Interval interval1pt2 = new Interval(-12345432123.99, 345654345411.0);
@@ -115,7 +139,7 @@ public class IntervalTest {
 	@Test 
 	void itsUniversalTest() {
 		// To test both constructors
-		
+
 		assertTrue(universalInterval.isUniversal());
 
 		Interval UniversalInterval = new Interval(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
@@ -161,19 +185,19 @@ public class IntervalTest {
 		// Case 5 min < max < this.min < this.max
 		interval1 = new Interval(10.9999, 100.0);
 		interval2 = new Interval(-20.0, 10.9998);
-		
+
 		assertEquals(emptyInterval, interval1.intersects(interval2));
 
 		// Case 6  this.min < this.max < min < max
 		interval1 = new Interval(-10.9999, 10.0);
 		interval2 = new Interval(10.0001, 80.0);
-		
+
 		assertEquals(emptyInterval, interval1.intersects(interval2));
 
 		// Case 7 when we try to find the intersection between an Interval and empty Interval
 		interval2 = new Interval(10.0001, 80.0);
 		assertEquals(emptyInterval, emptyInterval.intersects(interval2));
-		
+
 		// Case 8 when we try to find the intersection between an empty Interval and Interval
 		interval1 = new Interval(10.0001, 80.0);
 		assertEquals(emptyInterval, interval1.intersects(emptyInterval));
@@ -228,7 +252,7 @@ public class IntervalTest {
 
 
 		// Case 4 [ -inf, inf ] 
-		
+
 		intervalSet = universalInterval.complement();
 
 		result1 = intervalSet.getIntervals().get(0);
@@ -236,7 +260,7 @@ public class IntervalTest {
 		assertEquals(emptyInterval, result1);
 
 		// Case 5 EMPTY Interval
-		
+
 		intervalSet = emptyInterval.complement();
 
 		result1 = intervalSet.getIntervals().get(0);
@@ -244,57 +268,29 @@ public class IntervalTest {
 		assertEquals(universalInterval, result1);
 
 	}
-	
-	
-	
+
+
+
+
+
+
 
 	/** 
 	 * This method tests that the contains method works correctly
 	 */
-	@Test
-	void testContains() {
 
-		// Test for a normal interval and its boundaries
-		Interval normalInt = new Interval(-50.00, 50.00);
-		assertTrue(normalInt.contains(-49.99999999));
-		assertTrue(normalInt.contains(49.99999999));
-		assertTrue(normalInt.contains(-50.00));
-		assertTrue(normalInt.contains(50.00));
-		assertFalse(normalInt.contains(-50.00001));
-		assertFalse(normalInt.contains(50.00001));
-		assertFalse(normalInt.contains(Double.POSITIVE_INFINITY));
-		assertFalse(normalInt.contains(Double.NEGATIVE_INFINITY));
+	@DisplayName("Test Contains with Mins and max Inclusive")
+	@Property
+	public void testContains(@InRange(minDouble = 100.0, maxDouble = 200.0) Double min, Double max, Double target) {
 
-		// Test for an interval [-inf, number]
-		Interval negativeInfToNumber = new Interval(Double.NEGATIVE_INFINITY, 50.00);
-		assertTrue(negativeInfToNumber.contains(Double.NEGATIVE_INFINITY));
-		assertTrue(negativeInfToNumber.contains(-500098789024242.00));
-		assertTrue(negativeInfToNumber.contains(49.99999999));
-		assertTrue(negativeInfToNumber.contains(50.00));
-		assertFalse(negativeInfToNumber.contains(50.00001));
-		assertFalse(negativeInfToNumber.contains(Double.POSITIVE_INFINITY));
+		Interval interval1 = new Interval(120, true, 150, true);
 
-		// Test for an interval [number, inf]
-		Interval numberToPositiveInf = new Interval(50.00,Double.POSITIVE_INFINITY);
-		assertTrue(numberToPositiveInf.contains(Double.POSITIVE_INFINITY));
-		assertTrue(numberToPositiveInf.contains(500098789024242.00));
-		assertTrue(numberToPositiveInf.contains(50.00001));
-		assertTrue(numberToPositiveInf.contains(50.00));
-		assertFalse(numberToPositiveInf.contains(49.99999999));
-		assertFalse(numberToPositiveInf.contains(Double.NEGATIVE_INFINITY));
+		boolean result = target >= interval1.getMin() && target <= interval1.getMax();
 
-		// Test for an interval [-inf, inf]
-		assertTrue(universalInterval.contains(50.00));
-		assertTrue(universalInterval.contains(-50.0000));
-		assertTrue(universalInterval.contains(Double.NEGATIVE_INFINITY));
-		assertTrue(universalInterval.contains(Double.POSITIVE_INFINITY));
-
-		// Test for an empty set
-		assertFalse(emptyInterval.contains(50.00001));
-		assertFalse(emptyInterval.contains(Double.POSITIVE_INFINITY));
-		assertFalse(emptyInterval.contains(-50.99));
-		assertFalse(emptyInterval.contains(Double.NEGATIVE_INFINITY));
-
+		if(result)
+			assertTrue(interval1.contains(target));
+		else
+			assertFalse(interval1.contains(target));
 	}
 
 	/**
@@ -340,7 +336,7 @@ public class IntervalTest {
 		assertEquals(set4, set3);
 
 		//case 5 (-inf,+inf) U (18,20) = [ (-inf,+inf) ]
-		
+
 		IntervalSet set5 = new IntervalSet(universalInterval);
 		IntervalSet set6 = Interval.union(universalInterval, t2);
 		assertEquals(set5, set6);
@@ -348,13 +344,13 @@ public class IntervalTest {
 		//case 6 (-inf,20) U (30,+inf) = [ (-inf,20) , (30,+inf) ]
 		Interval t5 = new Interval(Double.NEGATIVE_INFINITY, 20);
 		Interval t6 = new Interval(30, Double.POSITIVE_INFINITY);
-		
+
 		IntervalSet set7 = Interval.union(t5, t6);
 		IntervalSet set8 = new IntervalSet(t5, t6);
 		assertEquals(set8, set7);
 
 		//case 7 ø U (-inf,+inf) = [ (-inf,+inf) ]
-		
+
 		IntervalSet set9 = Interval.union(emptyInterval, universalInterval);
 		IntervalSet set10 = new IntervalSet(universalInterval);
 		assertEquals(set10,set9);
@@ -366,73 +362,117 @@ public class IntervalTest {
 
 	}
 
-	/** 
-	 * This method tests that the compareTo method works correctly
+
+	/**
+	 * This test verify that the compareTo Boundaries are tested and are correctly
+	 * @param i1 the first interval
+	 * @param i2 the second interval
+	 * @param result the expected results
 	 */
+	@DisplayName("CompareTo Boundaries test")
+	@ParameterizedTest
+	@MethodSource("boundariesTestProvider")
+	void testCompareToBoundaries(Interval i1, Interval i2, int result) {
+		assumeNotNull(i1);
+		assumeNotNull(i2);	
+		assertEquals(result, i1.compareTo(i2));
+	}
+
+	static Stream<Arguments> boundariesTestProvider() {
+		return Stream.of(
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(10.00000001, true, 25, true), -1),
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(9.99999999, true, 25, true), 1),
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(10.000, true, 20.000, true), 0),
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(10.000, true, 20.000000001, true), -1),
+				Arguments.of(new Interval(10.000, true, 20.00000001, true ), new Interval(10.000, true, 20.000, true), 1),	        
+				Arguments.of(new Interval(10.000, true, 20.00000000, true ), new Interval(10.000, true, 20.00000000, false), 1),
+				Arguments.of(new Interval(10.000, true, 19.99999998, true ), new Interval(10.000, true, 20.00000000, false), -1),
+				Arguments.of(new Interval(10.000, true, 19.99999999, true ), new Interval(10.000, true, 20.00000000, false), 0), 
+				Arguments.of(new Interval(10.000, true, 20.00000002, false ), new Interval(10.000, true, 20.00000000, true), 1),
+				Arguments.of(new Interval(10.000, true, 20.00000000, false ), new Interval(10.000, true, 20.00000000, true), -1),
+				Arguments.of(new Interval(10.000, true, 20.00000001, false ), new Interval(10.000, true, 20.00000000, true), 0),
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(10.000, false, 25, true), 1),
+				Arguments.of(new Interval(9.99999998, true, 20.000, true ), new Interval(10.000, false, 25, true), -1),
+				Arguments.of(new Interval(9.99999999, true, 20.000, true ), new Interval(10.000, false, 20.000, true), 0),
+				Arguments.of(new Interval(9.99999999, true, 20.000, true ), new Interval(10.000, false, 20.000000001, true), -1),
+				Arguments.of(new Interval(9.99999999, true, 20.00000001, true ), new Interval(10.000, false, 20.000, true), 1),	
+				Arguments.of(new Interval(9.99999999, true, 20.00000000, true ), new Interval(10.000, false, 20.00000000, false), 1),
+				Arguments.of(new Interval(9.99999999, true, 19.99999998, true ), new Interval(10.000, false, 20.00000000, false), -1),
+				Arguments.of(new Interval(9.99999999, true, 19.99999999, true ), new Interval(10.000, false, 20.00000000, false), 0), 
+				Arguments.of(new Interval(9.99999999, true, 20.00000002, false ), new Interval(10.000, false, 20.00000000, true), 1),
+				Arguments.of(new Interval(9.99999999, true, 20.00000000, false ), new Interval(10.000, false, 20.00000000, true), -1),
+				Arguments.of(new Interval(9.99999999, true, 20.00000001, false ), new Interval(10.000, false, 20.00000000, true), 0),
+				Arguments.of(new Interval(10.00000002, false, 20.000, true ), new Interval(10.000, true, 25, true), 1),
+				Arguments.of(new Interval(10.00000000, false, 20.000, true ), new Interval(10.000, true, 25, true), -1),
+				Arguments.of(new Interval(10.00000001, false, 20.000, true ), new Interval(10.000, true, 20.000, true), 0),
+				Arguments.of(new Interval(10.00000001, false, 20.000, true ), new Interval(10.000, true, 20.000000001, true), -1),
+				Arguments.of(new Interval(10.00000001, false, 20.00000001, true ), new Interval(10.000, true, 20.000, true), 1),	
+				Arguments.of(new Interval(10.00000001, false, 20.00000000, true ), new Interval(10.000, true, 20.00000000, false), 1),
+				Arguments.of(new Interval(10.00000001, false, 19.99999998, true ), new Interval(10.000, true, 20.00000000, false), -1),
+				Arguments.of(new Interval(10.00000001, false, 19.99999999, true ), new Interval(10.000, true, 20.00000000, false), 0),
+				Arguments.of(new Interval(10.00000001, false, 20.00000002, false ), new Interval(10.000, true, 20.00000000, true), 1),
+				Arguments.of(new Interval(10.00000001, false, 20.00000000, false ), new Interval(10.000, true, 20.00000000, true), -1),
+				Arguments.of(new Interval(10.00000001, false, 20.00000001, false ), new Interval(10.000, true, 20.00000000, true), 0)
+
+
+				);
+	}
+
+
+
+
+	/** 
+	 * This test verify that the compareTo method works correctly
+	 */
+	@DisplayName("CompareTo Exceptions test")
 	@Test
-	void compareToTest() {
-
-		// Testing Cases and boundaries
-		// Case 1 this.min < min && max < this.max
-		Interval interval1 = new Interval(9.99, 15.00001);
-		Interval interval2 = new Interval(10.0,15.0);
-		assertEquals(-1, interval1.compareTo(interval2));
-
-		// Case 2 this.min < min < this.max < max
-		interval1 = new Interval(-10.001, 50.0);
-		interval2 = new Interval(-10.0,50.001);
-
-		assertEquals(-1, interval1.compareTo(interval2));
-
-		// Case 3 min < this.min < max < this.max
-		interval1 = new Interval(-19.9999, 30.0001);
-		interval2 = new Interval(-20.0, 30.0);
-
-		assertEquals(1, interval1.compareTo(interval2));
-
-		// Case 4 min < this.min < this.max < max
-		interval1 = new Interval(-9.9999, 10.0);
-		interval2 = new Interval(-10.0, 10.00001);
-
-		assertEquals(1, interval1.compareTo(interval2));
-
-		// Case 5 min < max < this.min < this.max
-		interval1 = new Interval(10.9999, 100.0);
-		interval2 = new Interval(-20.0, 10.9998);
-
-		assertEquals(1, interval1.compareTo(interval2));
-
-		// Case 6  this.min < this.max < min < max
-		interval1 = new Interval(-10.9999, 10.0);
-		interval2 = new Interval(10.0001, 80.0);
-
-		assertEquals(-1, interval1.compareTo(interval2));
-
-		// Case 7 when we have equal mins and we use the max to decide   this.min == min  && this.max < max
-		interval1 = new Interval(10.00, 20.0);
-		interval2 = new Interval(10.00, 80.0);
-
-		assertEquals(-1, interval1.compareTo(interval2));
-
-		// Case 8 when we have equal mins and we use the max to decide   this.min == min && max < this.max
-		interval1 = new Interval(10.00, 200.0);
-		interval2 = new Interval(10.00, 80.0);
-
-		assertEquals(1, interval1.compareTo(interval2));
-
-
-		// Case 9 when we compare with an empty set
-		
+	void compareToTestExceptions() {
 		assertThrows(UnsupportedOperationException.class, ()->{
 			emptyInterval.compareTo(new Interval(10.00, 80.0)
 					);
 		});
-
-		// Case 10 when we compare with an empty set
 		assertThrows(UnsupportedOperationException.class, ()->{
 			(new Interval(10.00, 80.0)).compareTo(emptyInterval 
 					);
 		});
 	}	
+
+	/**
+	 * This method test the ToString function
+	 * @param i1
+	 * @param result
+	 */
+	@DisplayName("ToString test")
+	@ParameterizedTest
+	@MethodSource("toStringTestProvider")
+	void toStringTest(Interval i1, String result) {
+
+		assertEquals(result, i1.toString());
+	}
+
+
+	static Stream<Arguments> toStringTestProvider() {
+		return Stream.of(
+				Arguments.of(new Interval(10.0005, true, 20.0005, true ), "[ 10.0005 , 20.0005 ]"),
+				Arguments.of(new Interval(10.0005, true, 20.0005, false ), "[ 10.0005 , 20.0005 )"),
+				Arguments.of(new Interval(10.0005, false, 20.0005, true ), "( 10.0005 , 20.0005 ]"),
+				Arguments.of(new Interval(10.0005, false, 20.0005, false ),"( 10.0005 , 20.0005 )"),
+				Arguments.of(new Interval(false, true), "∅"));
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
