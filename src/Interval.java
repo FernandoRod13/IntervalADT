@@ -15,7 +15,7 @@ public class Interval implements Comparable<Interval> {
 	private boolean minInclusive;
 	private boolean maxInclusive;
 
-	
+
 	/**
 	 * Create a new Interval, if min is greater than or equal to max throws illegal argument exception. 
 	 * @param min Double minimum value of the tuple
@@ -138,37 +138,113 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public Interval intersects(Interval interval1) {
-
+		
+		// Intersection between Empty sets is empty
 		if( this.empty || interval1.isEmpty()) {
 			return new Interval(false, true);
-
-
 		}
-
-
+		
+		// If Intervals Intersect
 		if(!(interval1.getMax() <= this.min || interval1.getMin() >= this.max)) {
-
+			
+			
+			// If this.min < min
 			if(interval1.getMin() > this.min) {
 				
-				
+				//  this.min < min < max < this.max
 				if(interval1.getMax() < this.max) {
-					// case 1
-					return new Interval(interval1.getMin(),interval1.getMax());
+					
+					return new Interval(interval1.getMin(),interval1.isMinInclusive(), interval1.getMax(), interval1.isMaxInclusive());
 				}
+				// this.min < min < this.max < max
+				else if(interval1.getMax() > this.max)  {
+					
+					return new Interval(interval1.getMin(), interval1.isMinInclusive(), this.max, this.isMaxInclusive());
+				}
+				
+					// max == this.max
 				else {
-					// case 2
-					return new Interval(interval1.getMin(),this.max);
+					if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
+						return new Interval(interval1.getMin(), interval1.isMinInclusive(), interval1.max, true);
+					}
+					else {
+						return new Interval(interval1.getMin(), interval1.isMinInclusive(), interval1.max, false);
+					}
 				}
 			}
-			else {
+
+			// min < this.min
+			else if(interval1.getMin() < this.min){
+				
+				// min < this.min < max < this.max
 				if(interval1.getMax() < this.max) {
-					// case 3
-					return new Interval(this.min ,interval1.getMax());
+					
+					return new Interval(this.min, this.isMinInclusive(), interval1.getMax(), interval1.isMaxInclusive());
 				}
-				else{
-					// case 4
-					return new Interval(this.min ,this.max);
+				// min < this.min < this.max < max 
+				else if(interval1.getMax() > this.max) {
+					
+					return new Interval(this.min, this.isMinInclusive(), this.max, this.isMaxInclusive());
 				}
+				
+				// max == this.max
+				else {
+					if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
+						return new Interval(this.getMin(), this.isMinInclusive(), this.max, true);
+					}
+					else {
+						return new Interval(this.getMin(), this.isMinInclusive(), this.max, false);
+					}
+				}
+			}
+			
+			// min == this.min
+			else {
+				// min == this.min < max < this.max
+				if(interval1.getMax() < this.max) {
+					
+					if(interval1.isMinInclusive() && this.isMinInclusive()) {
+						return new Interval(this.getMin(), true , interval1.max, interval1.isMaxInclusive());
+					}
+					else {
+						return new Interval(this.getMin(), false , interval1.max, interval1.isMaxInclusive());
+					}
+				}
+				
+				// min == this.min < this.max < max
+				else if(interval1.getMax() > this.max) {
+					
+					if(interval1.isMinInclusive() && this.isMinInclusive()) {
+						return new Interval(this.getMin(), true , this.max, this.isMaxInclusive());
+					}
+					else {
+						return new Interval(this.getMin(), false , this.max, this.isMaxInclusive());
+					}
+				}
+				
+				// max == this.max
+				else {
+					// min == this.min < max == this.max
+					if(interval1.isMinInclusive() && this.isMinInclusive()) {
+						
+						if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
+							return new Interval(this.min, true, this.max, true);
+						}
+						else {
+							return new Interval(this.min, true, this.max, false);
+						}
+					}
+					else {
+						
+						if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
+							return new Interval(this.min, false, this.max, true);
+						}
+						else {
+							return new Interval(this.min, false, this.max, false);
+						}
+					}
+				}
+				
 			}
 		}
 
@@ -236,8 +312,8 @@ public class Interval implements Comparable<Interval> {
 		}
 
 		if (!interval1.intersects(interval2).isEmpty()) {
-			
-			
+
+
 			if (interval1.compareTo(interval2) < 0) {
 				return new IntervalSet( new Interval(interval1.min, interval1.isMinInclusive(), interval2.max, interval2.isMaxInclusive()));
 			}else {
@@ -265,22 +341,22 @@ public class Interval implements Comparable<Interval> {
 
 
 		if(this.minInclusive && this.maxInclusive) {
-			
+
 			return element >= this.getMin() && element <= this.getMax();
 		}
-		
+
 		else if(this.minInclusive && !this.maxInclusive) {
-			
+
 			return element >= this.getMin() && element <= this.getMax() - 0.00000001;
 		}
-		
+
 		else if(!this.minInclusive && this.maxInclusive) {
-			
+
 			return element >= this.getMin() + 0.00000001 && element <= this.getMax();
 		}
-		
+
 		else {
-			
+
 			return element >= this.getMin() + 0.00000001 && element <= this.getMax() - 0.00000001;
 		}
 
