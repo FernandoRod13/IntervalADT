@@ -34,7 +34,25 @@ public class Interval implements Comparable<Interval> {
 
 	}
 
+	/**
+	 * Create a new Interval, if min is greater than or equal to max throws illegal argument exception. 
+	 * @param min Double minimum value of the tuple
+	 * @param max Double maximum value of the tuple
+	 * @throws IllegalArgumentException if min is greater or equal to max
+	 */
+	public Interval(double min, double max) { 
+		if (min >= max)
+			throw new IllegalArgumentException("Min cannot be greater or equal to Max");
 
+		this.min = min;
+		this.minInclusive = true;
+		this.max = max;
+		this.maxInclusive = true;
+		this.empty = false;
+
+	}
+
+	
 
 	/**
 	 * If universal is true min will be set to negative infinity and max will be set to positive infinity.
