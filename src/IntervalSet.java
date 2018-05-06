@@ -31,7 +31,7 @@ public class IntervalSet {
 	 * @param i2 Interval to add to set.
 	 * @throws IllegalArgumentException if both intervals are equal or if any are null.
 	 */
-	public IntervalSet( Interval i1, Interval i2) {
+	private IntervalSet( Interval i1, Interval i2) {
 		if(i1 == null || i2 == null) {
 			throw new IllegalArgumentException("Intervals cannot be null.");
 		}
@@ -96,8 +96,23 @@ public class IntervalSet {
 	 * @param set
 	 * @return
 	 */
-	public IntervalSet complement(IntervalSet set) {
-		return null;
+	public IntervalSet complement() {
+		if (this.intervals.size() == 1) {
+			return this.intervals.get(0).complement();
+		} else {
+			IntervalSet res = this.intervals.get(0).complement();
+			IntervalSet temp;
+			int index = 1;
+			while (index < this.intervals.size()) {
+				Interval after = this.intervals.remove(index);
+				temp = this.intervals.get(index).complement();
+				Interval before = temp.intervals.get(0);
+				res.addInterval(new Interval(after.getMax(),after.isMaxInclusive(), before.getMin(), before.isMinInclusive()));
+				res.addInterval(temp.intervals.get(1));
+				index++;
+			}
+			return res;
+		}
 	}
 	
 	/**

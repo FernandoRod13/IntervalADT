@@ -282,7 +282,9 @@ public class Interval implements Comparable<Interval> {
 		else{
 			Interval i1 = new Interval(Double.NEGATIVE_INFINITY, true,  this.min, !this.isMinInclusive());
 			Interval i2 = new Interval(this.max, !this.isMaxInclusive(), Double.POSITIVE_INFINITY, true);
-			return new IntervalSet(i1, i2);
+			IntervalSet res = new IntervalSet(i1);
+			res.addInterval(i2);
+			return res;
 		}
 	}
 
@@ -320,7 +322,9 @@ public class Interval implements Comparable<Interval> {
 				return new IntervalSet( new Interval(interval2.min, interval2.isMinInclusive(), interval1.max, interval1.isMaxInclusive()));
 			}
 		} else {
-			return new IntervalSet(interval1,interval2);
+			IntervalSet res = new IntervalSet(interval1);
+			res.addInterval(interval2);
+			return res;
 		}
 	}
 
