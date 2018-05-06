@@ -191,8 +191,8 @@ public class IntervalTest {
 
 		IntervalSet intervalSet = interval1.complement();
 
-		Interval expectedResult1 = new Interval(Double.NEGATIVE_INFINITY, -50.001);
-		Interval expectedResult2 = new Interval(50.001, Double.POSITIVE_INFINITY);
+		Interval expectedResult1 = new Interval(Double.NEGATIVE_INFINITY,true, -50.00, false);
+		Interval expectedResult2 = new Interval(50.00, false, Double.POSITIVE_INFINITY, true);
 
 
 		Interval result1 = intervalSet.getIntervals().get(0);
@@ -208,7 +208,7 @@ public class IntervalTest {
 
 		intervalSet = interval1.complement();
 
-		expectedResult1 = new Interval(50.001, Double.POSITIVE_INFINITY);
+		expectedResult1 = new Interval(50.0, false, Double.POSITIVE_INFINITY, true);
 
 		result1 = intervalSet.getIntervals().get(0);
 
@@ -220,7 +220,7 @@ public class IntervalTest {
 
 		intervalSet = interval1.complement();
 
-		expectedResult1 = new Interval(Double.NEGATIVE_INFINITY, 49.999);
+		expectedResult1 = new Interval(Double.NEGATIVE_INFINITY, true, 50.0, false);
 
 		result1 = intervalSet.getIntervals().get(0);
 
@@ -244,6 +244,9 @@ public class IntervalTest {
 		assertEquals(universalInterval, result1);
 
 	}
+	
+	
+	
 
 	/** 
 	 * This method tests that the contains method works correctly
