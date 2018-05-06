@@ -31,7 +31,7 @@ public class IntervalSet {
 	 * @param i2 Interval to add to set.
 	 * @throws IllegalArgumentException if both intervals are equal or if any are null.
 	 */
-	private IntervalSet( Interval i1, Interval i2) {
+	public IntervalSet( Interval i1, Interval i2) {
 		if(i1 == null || i2 == null) {
 			throw new IllegalArgumentException("Intervals cannot be null.");
 		}
