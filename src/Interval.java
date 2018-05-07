@@ -156,16 +156,12 @@ public class Interval implements Comparable<Interval> {
 	 * @throws IllegalArgumentException if the interval passed is null.
 	 */
 	public Interval intersects(Interval interval1) {
-
 		// Intersection between Empty sets is empty
 		if( this.empty || interval1.isEmpty()) {
 			return new Interval(false, true);
 		}
-
-		// If Intervals Intersect
-		if(!(interval1.getMax() <= this.min || interval1.getMin() >= this.max)) {
-
-
+		// If Intervals
+		if(!(interval1.getMax() <= this.min || interval1.getMin() >= this.max)) {		
 			// If this.min < min
 			if(interval1.getMin() > this.min) {
 
@@ -190,7 +186,6 @@ public class Interval implements Comparable<Interval> {
 					}
 				}
 			}
-
 			// min < this.min
 			else if(interval1.getMin() < this.min){
 
@@ -204,7 +199,6 @@ public class Interval implements Comparable<Interval> {
 
 					return new Interval(this.min, this.isMinInclusive(), this.max, this.isMaxInclusive());
 				}
-
 				// max == this.max
 				else {
 					if(interval1.isMaxInclusive() && this.isMaxInclusive()) {
@@ -215,7 +209,6 @@ public class Interval implements Comparable<Interval> {
 					}
 				}
 			}
-
 			// min == this.min
 			else {
 				// min == this.min < max < this.max
@@ -239,7 +232,6 @@ public class Interval implements Comparable<Interval> {
 						return new Interval(this.getMin(), false , this.max, this.isMaxInclusive());
 					}
 				}
-
 				// max == this.max
 				else {
 					// min == this.min < max == this.max
@@ -269,7 +261,6 @@ public class Interval implements Comparable<Interval> {
 		else {
 			// case in which there is no Intersection
 			return new Interval(false, true);
-
 		}
 	}
 
@@ -330,16 +321,30 @@ public class Interval implements Comparable<Interval> {
 				return new IntervalSet(interval2); 
 			}
 		}
-
+		//////////////////
 		if (!interval1.intersects(interval2).isEmpty()) {
 
 
 			if (interval1.compareTo(interval2) < 0) {
-				return new IntervalSet( new Interval(interval1.min, interval1.isMinInclusive(), interval2.max, interval2.isMaxInclusive()));
-			}else {
-				return new IntervalSet( new Interval(interval2.min, interval2.isMinInclusive(), interval1.max, interval1.isMaxInclusive()));
+				if(interval1.getMax() < interval2.getMax()) {
+					return new IntervalSet( new Interval(interval1.min, interval1.isMinInclusive(), interval2.max, interval2.isMaxInclusive()));
+				}
+				else {
+					return new IntervalSet( new Interval(interval1.min, interval1.isMinInclusive(), interval1.max, interval1.isMaxInclusive()));
+				}
+
 			}
-		} else {
+			else {
+				if(interval2.getMax() < interval1.getMax()) {
+					return new IntervalSet( new Interval(interval2.min, interval2.isMinInclusive(), interval1.max, interval1.isMaxInclusive()));
+				}
+				else {
+					return new IntervalSet( new Interval(interval2.min, interval2.isMinInclusive(), interval2.max, interval2.isMaxInclusive()));
+
+				}
+			} 
+		}
+		else {
 			IntervalSet res = new IntervalSet(interval1);
 			res.addInterval(interval2);
 			return res;
@@ -555,7 +560,7 @@ public class Interval implements Comparable<Interval> {
 		}
 	}
 
-	
+
 
 	@Override
 	public boolean equals(Object t) {
@@ -572,7 +577,7 @@ public class Interval implements Comparable<Interval> {
 				return false;
 			}
 			// Both intervals are the universal interval 
-			if(this.min == Double.NEGATIVE_INFINITY && this.max == Double.POSITIVE_INFINITY && t1.getMin() == Double.NEGATIVE_INFINITY && t1.getMax() == Double.POSITIVE_INFINITY) {
+			if(this.isUniversal() && t1.isUniversal()) {
 				return true;
 			}
 
@@ -638,6 +643,7 @@ public class Interval implements Comparable<Interval> {
 				}
 
 			}
+
 			else {
 				return false;
 			}
@@ -648,6 +654,7 @@ public class Interval implements Comparable<Interval> {
 			return false;
 		}
 	}
+
 
 	@Override
 	public String toString() {
