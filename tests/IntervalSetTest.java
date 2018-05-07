@@ -134,6 +134,24 @@ public class IntervalSetTest {
 		return set;
 	}
 	
+	@DisplayName("Complement of IntervalSet Basic Test")
+	@ParameterizedTest
+	@MethodSource("complementBasicTestProvider")
+	void testComplement(IntervalSet set1, IntervalSet res) {
+		assumeNotNull(set1);
+		assumeNotNull(res);
+		assertEquals(res, set1.complement());
+	}
+	
+	static Stream<Arguments> complementBasicTestProvider() {
+	    return Stream.of(
+	        Arguments.of(
+	        		new IntervalSet(new Interval(14,20), new Interval(27,35)),
+	        		intervalSetFactory(new Interval(Double.NEGATIVE_INFINITY, true,14, false), new Interval(20,false,27, false), new Interval(35,false, Double.POSITIVE_INFINITY, true))
+	        	)
+	    );
+	}
+	
 	
 	/**
 	 * This method tests that the Remove Interval method works correctly

@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 /**
  * The IntervalSet class represents a set of intervals, that is, a group of intervals in which each one represents all the
@@ -70,6 +72,7 @@ public class IntervalSet {
 		for(Interval i: set.intervals) {
 			res.addInterval(i);
 		}
+		res.intervals.sort((a, b) -> a.compareTo(b));
 		return res;
 	}
 	
@@ -105,16 +108,23 @@ public class IntervalSet {
 			return this.intervals.get(0).complement();
 		} else {
 			IntervalSet res = this.intervals.get(0).complement();
-			IntervalSet temp;
-			int index = 1;
-			while (index < this.intervals.size()) {
-				Interval after = this.intervals.remove(index);
-				temp = this.intervals.get(index).complement();
-				Interval before = temp.intervals.get(0);
-				res.addInterval(new Interval(after.getMax(),after.isMaxInclusive(), before.getMin(), before.isMinInclusive()));
-				res.addInterval(temp.intervals.get(1));
-				index++;
+			if (res.intervals.get(0).isEmpty() || res.intervals.get(0).isUniversal()) {
+				return res;
 			}
+			ArrayList<Interval> list = new ArrayList<>();
+			for(Interval i: this.intervals) {
+				list.addAll(i.complement().intervals);
+			}
+			res = null;
+			res = new IntervalSet(list.get(0));
+			for(int j=1; j+1 < list.size(); j += 2) {
+				if(j % 2 != 0) {
+					Interval first = list.get(j);
+					Interval second = list.get(j+1);
+					res.addInterval(new Interval(first.getMin(), first.isMinInclusive(), second.getMax(), second.isMaxInclusive()));
+				}
+			}
+			res.addInterval(list.get(list.size()-1));
 			return res;
 		}
 	}
@@ -129,13 +139,26 @@ public class IntervalSet {
 		if(i == null) {
 			throw new IllegalArgumentException("Interval cannot be null");
 		}
+		if(i.isUniversal()) {
+			int size = this.intervals.size();
+			for(int j = 0; j < size; j++) {
+				this.intervals.remove(0);
+				size--;
+			}
+			this.intervals.add(i);
+			return;
+		}
 		if (this.intervals.size() == 0) {
 			this.intervals.add(0, i);
 			return;
 		} else {
 			Interval interval = this.intervals.get(0);
+			if(interval.isUniversal()) {
+				return;
+			}
 			int index = 0;
 			while (index < this.intervals.size()) {
+				
 				// check if interval matches the current to end execution
 				if (interval.compareTo(i) == 0 ) {
 					return;
@@ -144,7 +167,7 @@ public class IntervalSet {
 					//check if i intersects with the current interval to replace interval with intersection and end
 					Interval intersection = i.intersects(interval);
 					if ( !intersection.isEmpty()) {
-						Interval overlapping = new Interval(i.getMin(), interval.getMax());
+						Interval overlapping = new Interval(interval.getMin(), i.getMax());
 						this.intervals.set(index, overlapping);
 						return;
 					}
