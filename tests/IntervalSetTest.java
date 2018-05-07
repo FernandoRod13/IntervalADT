@@ -2,6 +2,7 @@ import static org.junit.Assume.assumeNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
@@ -82,6 +83,55 @@ public class IntervalSetTest {
 	        Arguments.of(new IntervalSet(new Interval(10,20)), new Interval(25,50), new IntervalSet(new Interval(10,20), new Interval(25,50))),
 	        Arguments.of(new IntervalSet(new Interval(true,false)), new Interval(25,50), new IntervalSet(new Interval(true,false)))
 	    );
+	}
+	
+	@DisplayName("Intersection of 2 IntervalSets Basic Test")
+	@ParameterizedTest
+	@MethodSource("intersectionBasicTestProvider")
+	void testIntersectionBasic(IntervalSet set1, IntervalSet set2, IntervalSet res) {
+		assumeNotNull(set1);
+		assumeNotNull(set2);
+		assumeNotNull(res);
+		assertEquals(res, set1.intersection(set2));
+	}
+	
+	static Stream<Arguments> intersectionBasicTestProvider() {
+	    return Stream.of(
+	        Arguments.of(
+	        		new IntervalSet(new Interval(14,20), new Interval(27,35)),
+	        		new IntervalSet(new Interval(15,22), new Interval(30,45)),
+	        		new IntervalSet(new Interval(15,20), new Interval(30,35))
+	        	)
+	    );
+	}
+	@DisplayName("Union of 2 IntervalSets Basic Test")
+	@ParameterizedTest
+	@MethodSource("unionBasicTestProvider")
+	void testUnion(IntervalSet set1, IntervalSet set2, IntervalSet res) {
+		assumeNotNull(set1);
+		assumeNotNull(set2);
+		assumeNotNull(res);
+		assertEquals(res, set1.union(set2));
+	}
+	
+	static Stream<Arguments> unionBasicTestProvider() {
+	    return Stream.of(
+	        Arguments.of(
+	        		new IntervalSet(new Interval(14,20), new Interval(27,35)),
+	        		new IntervalSet(new Interval(21,23), new Interval(38,45)),
+	        		intervalSetFactory(new Interval(14,20), new Interval(21,23), new Interval(27,35), new Interval(38,45))
+	        	)
+	    );
+	}
+	
+	static IntervalSet intervalSetFactory(Interval...list) {
+		IntervalSet set = new IntervalSet(list[0]);
+		int index = 1;
+		while (index < list.length) {
+			set.getIntervals().add(list[index]);
+			index++;
+		}
+		return set;
 	}
 	
 	

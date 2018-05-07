@@ -79,12 +79,16 @@ public class IntervalSet {
 	 * @return
 	 */
 	public IntervalSet intersection(IntervalSet set) {
-		IntervalSet res = new IntervalSet( new Interval(false, true));
+		IntervalSet res = null;
 		for(Interval i1: this.intervals) {
 			for(Interval i2: set.intervals) {
 				Interval inter = i1.intersects(i2);
-				if (inter.isEmpty()) {
-					res.addInterval(inter);
+				if (!inter.isEmpty()) {
+					if (res == null) {
+						res = new IntervalSet(inter);
+					}else {
+						res.addInterval(inter);
+					}
 				}
 			}
 		}
@@ -137,14 +141,20 @@ public class IntervalSet {
 					return;
 				//check if i is bigger than interval
 				} else if ( i.compareTo(interval) > 0) {
+					//check if i intersects with the current interval to replace interval with intersection and end
+					Interval intersection = i.intersects(interval);
+					if ( !intersection.isEmpty()) {
+						Interval overlapping = new Interval(i.getMin(), interval.getMax());
+						this.intervals.set(index, overlapping);
+						return;
+					}
 					if (this.intervals.size() == 1) {
 						this.intervals.add(i);
 						return;
 					}
-					//check if i intersects with the current interval to replace interval with intersection and end
-					Interval intersection = i.intersects(interval);
-					if ( !intersection.isEmpty()) {
-						this.intervals.set(index, intersection);
+					
+					if(this.intervals.size()-1 == index) {
+						this.intervals.add(i);
 						return;
 					}
 				//if i is smaller than interval 
