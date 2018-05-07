@@ -1,37 +1,33 @@
 
-import static org.junit.Assume.assumeNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.Assume.*;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.stream.Stream;
-import java.util.Random;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.runner.RunWith;
+
 
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.generator.InRange;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+import org.junit.runner.RunWith;
 
 
 
-import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
-
+import java.util.Random;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 /**
  * This class is designed to test the Interval class  
  * @author Cristian Melendez and Fernando Rodriguez
  *
  */
-@RunWith(JUnitQuickcheck.class)
+//@RunWith(JUnitQuickcheck.class)
 public class IntervalTest {
 
 	static Interval emptyInterval;
@@ -278,21 +274,166 @@ public class IntervalTest {
 	/** 
 	 * This method tests that the contains method works correctly
 	 */
+	@DisplayName("Contains test Inclusive-Inclusive")
+	@Test
+	public void testContainsInclusiveInclusive() {
+		Interval interval1 = new Interval(10.0, true, 20.0, true);
+		assertAll("Boundaries violated",
+				()-> assertFalse(interval1.contains(5.0)),
+				()-> assertFalse(interval1.contains(9.99999999)),
+				()-> assertTrue(interval1.contains(10.0)),
+				()->	 assertTrue(interval1.contains(10.00000001)),
+				()->	 assertTrue(interval1.contains(19.99999999)),
+				()-> assertTrue(interval1.contains(20.0)),
+				()-> assertFalse(interval1.contains(20.000000001)),
+				()-> assertFalse(interval1.contains(40.000000000))
+		);	
+	}
+	
+	
+	/** 
+	 * This method tests that the contains method works correctly
+	 */
+	@DisplayName("Contains test Inclusive-Exclusive")
+	@Test
+	public void testContainsInclusiveExclusive() {
+		Interval interval1 = new Interval(10.0, true, 20.0, false);
+		assertAll("Boundaries violated",
+				()-> assertFalse(interval1.contains(5.0)),
+				()-> assertFalse(interval1.contains(9.99999999)),
+				()-> assertTrue(interval1.contains(10.0)),
+				()->	 assertTrue(interval1.contains(10.00000001)),
+				()->	 assertTrue(interval1.contains(19.99999999)),
+				()-> assertFalse(interval1.contains(20.0)),
+				()-> assertFalse(interval1.contains(20.000000001)),
+				()-> assertFalse(interval1.contains(40.000000000))
+		);	
+	}
+	
 
-	@DisplayName("Test Contains with Mins and max Inclusive")
-	@Property
-	public void testContains(@InRange(minDouble = 100.0, maxDouble = 200.0) Double min, Double max, Double target) {
+	/** 
+	 * This method tests that the contains method works correctly
+	 */
+	@DisplayName("Contains test Exclusive-Inclusive")
+	@Test
+	public void testContainsExclusiveInclusive() {
+		Interval interval1 = new Interval(10.0, false, 20.0, true);
+		assertAll("Boundaries violated",
+				()-> assertFalse(interval1.contains(5.0)),
+				()-> assertFalse(interval1.contains(9.99999999)),
+				()-> assertFalse(interval1.contains(10.0)),
+				()->	 assertTrue(interval1.contains(10.00000001)),
+				()->	 assertTrue(interval1.contains(19.99999999)),
+				()-> assertTrue(interval1.contains(20.0)),
+				()-> assertFalse(interval1.contains(20.000000001)),
+				()-> assertFalse(interval1.contains(40.000000000))
+		);	
+	}
+	
+	/** 
+	 * This method tests that the contains method works correctly
+	 */
+	@DisplayName("Contains test Exclusive-Exclusive")
+	@Test
+	public void testContainsExclusiveExclusive() {
+		Interval interval1 = new Interval(10.0, false, 20.0, false);
+		assertAll("Boundaries violated",
+				()-> assertFalse(interval1.contains(5.0)),
+				()-> assertFalse(interval1.contains(9.99999999)),
+				()-> assertFalse(interval1.contains(10.0)),
+				()->	 assertTrue(interval1.contains(10.00000001)),
+				()->	 assertTrue(interval1.contains(19.99999999)),
+				()-> assertFalse(interval1.contains(20.0)),
+				()-> assertFalse(interval1.contains(20.000000001)),
+				()-> assertFalse(interval1.contains(40.000000000))
+		);	
+	}
+	
+	/** 
+	 * This method tests that the contains function returns false when is an empty set
+	 */
+	@DisplayName("Contains Empty Set")
+	@Test
+	public void testContainsWithEmptySet() {
+		Interval interval1 = new Interval(false, true);
+		assertFalse(interval1.contains(20.00));
+	}
+	
+	
 
-		Interval interval1 = new Interval(120, true, 150, true);
-
-		boolean result = target >= interval1.getMin() && target <= interval1.getMax();
-
-		if(result)
-			assertTrue(interval1.contains(target));
-		else
-			assertFalse(interval1.contains(target));
+	@DisplayName("Interval Equality Test()")
+	@ParameterizedTest
+	@MethodSource("boundariesForEqualityTestProvider")
+	void intervalEqualityTest(Interval i1, Interval i2, boolean result) {
+		
+		if(result) {
+			assertTrue(i1.equals(i2));
+		}
+		else {
+			assertFalse(i1.equals(i2));
+		}
+		
 	}
 
+	static Stream<Arguments> boundariesForEqualityTestProvider() {
+		return Stream.of(
+				Arguments.of(new Interval(false, true), new Interval(false, true), true),
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(false, true), false),
+				Arguments.of(new Interval( false, true ), new Interval(10.000, true, 20.000, true), false),
+				
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(10.000, true, 20.000, true ), true),
+				Arguments.of(new Interval(10.000, true, 20.000, false ), new Interval(10.000, true, 20.000, false ), true),
+				Arguments.of(new Interval(10.000, false, 20.000, true ), new Interval(10.000, false, 20.000, true ), true),
+				Arguments.of(new Interval(10.000, false, 20.000, false ), new Interval(10.000, false, 20.000, false ), true),
+				
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(true, false), false),
+				Arguments.of(new Interval( true, false ), new Interval(10.000, true, 20.000, true), false),
+				
+				
+				
+				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(10.000, true, 20.000, true ), true)
+				
+				
+				
+				
+				
+//				Arguments.of(new Interval(10.000, true, 20.00000001, true ), new Interval(10.000, true, 20.000, true), 1),	        
+//				Arguments.of(new Interval(10.000, true, 20.00000000, true ), new Interval(10.000, true, 20.00000000, false), 1),
+//				Arguments.of(new Interval(10.000, true, 19.99999998, true ), new Interval(10.000, true, 20.00000000, false), -1),
+//				Arguments.of(new Interval(10.000, true, 19.99999999, true ), new Interval(10.000, true, 20.00000000, false), 0), 
+//				Arguments.of(new Interval(10.000, true, 20.00000002, false ), new Interval(10.000, true, 20.00000000, true), 1),
+//				Arguments.of(new Interval(10.000, true, 20.00000000, false ), new Interval(10.000, true, 20.00000000, true), -1),
+//				Arguments.of(new Interval(10.000, true, 20.00000001, false ), new Interval(10.000, true, 20.00000000, true), 0),
+//				Arguments.of(new Interval(10.000, true, 20.000, true ), new Interval(10.000, false, 25, true), 1),
+//				Arguments.of(new Interval(9.99999998, true, 20.000, true ), new Interval(10.000, false, 25, true), -1),
+//				Arguments.of(new Interval(9.99999999, true, 20.000, true ), new Interval(10.000, false, 20.000, true), 0),
+//				Arguments.of(new Interval(9.99999999, true, 20.000, true ), new Interval(10.000, false, 20.000000001, true), -1),
+//				Arguments.of(new Interval(9.99999999, true, 20.00000001, true ), new Interval(10.000, false, 20.000, true), 1),	
+//				Arguments.of(new Interval(9.99999999, true, 20.00000000, true ), new Interval(10.000, false, 20.00000000, false), 1),
+//				Arguments.of(new Interval(9.99999999, true, 19.99999998, true ), new Interval(10.000, false, 20.00000000, false), -1),
+//				Arguments.of(new Interval(9.99999999, true, 19.99999999, true ), new Interval(10.000, false, 20.00000000, false), 0), 
+//				Arguments.of(new Interval(9.99999999, true, 20.00000002, false ), new Interval(10.000, false, 20.00000000, true), 1),
+//				Arguments.of(new Interval(9.99999999, true, 20.00000000, false ), new Interval(10.000, false, 20.00000000, true), -1),
+//				Arguments.of(new Interval(9.99999999, true, 20.00000001, false ), new Interval(10.000, false, 20.00000000, true), 0),
+//				Arguments.of(new Interval(10.00000002, false, 20.000, true ), new Interval(10.000, true, 25, true), 1),
+//				Arguments.of(new Interval(10.00000000, false, 20.000, true ), new Interval(10.000, true, 25, true), -1),
+//				Arguments.of(new Interval(10.00000001, false, 20.000, true ), new Interval(10.000, true, 20.000, true), 0),
+//				Arguments.of(new Interval(10.00000001, false, 20.000, true ), new Interval(10.000, true, 20.000000001, true), -1),
+//				Arguments.of(new Interval(10.00000001, false, 20.00000001, true ), new Interval(10.000, true, 20.000, true), 1),	
+//				Arguments.of(new Interval(10.00000001, false, 20.00000000, true ), new Interval(10.000, true, 20.00000000, false), 1),
+//				Arguments.of(new Interval(10.00000001, false, 19.99999998, true ), new Interval(10.000, true, 20.00000000, false), -1),
+//				Arguments.of(new Interval(10.00000001, false, 19.99999999, true ), new Interval(10.000, true, 20.00000000, false), 0),
+//				Arguments.of(new Interval(10.00000001, false, 20.00000002, false ), new Interval(10.000, true, 20.00000000, true), 1),
+//				Arguments.of(new Interval(10.00000001, false, 20.00000000, false ), new Interval(10.000, true, 20.00000000, true), -1),
+//				Arguments.of(new Interval(10.00000001, false, 20.00000001, false ), new Interval(10.000, true, 20.00000000, true), 0)
+
+
+				);
+	}
+
+
+	
+	
 	/**
 	 * This method tests that the equal's method works correctly
 	 */
@@ -306,6 +447,10 @@ public class IntervalTest {
 		assertFalse(interval1.equals(interval3));
 
 	}
+	
+	
+	
+	
 
 	/**
 	 * This method tests that the Union method works correctly
@@ -459,20 +604,5 @@ public class IntervalTest {
 				Arguments.of(new Interval(10.0005, false, 20.0005, false ),"( 10.0005 , 20.0005 )"),
 				Arguments.of(new Interval(false, true), "∅"));
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

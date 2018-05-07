@@ -362,17 +362,17 @@ public class Interval implements Comparable<Interval> {
 		}
 
 
-		if(this.minInclusive && this.maxInclusive) {
+		if(this.minInclusive) {
+			if(this.maxInclusive) {
 
-			return element >= this.getMin() && element <= this.getMax();
+				return element >= this.getMin() && element <= this.getMax();
+			}
+			else {
+				return element >= this.getMin() && element <= this.getMax() - 0.00000001;
+			}
 		}
 
-		else if(this.minInclusive && !this.maxInclusive) {
-
-			return element >= this.getMin() && element <= this.getMax() - 0.00000001;
-		}
-
-		else if(!this.minInclusive && this.maxInclusive) {
+		else if(this.maxInclusive) {
 
 			return element >= this.getMin() + 0.00000001 && element <= this.getMax();
 		}
@@ -555,6 +555,7 @@ public class Interval implements Comparable<Interval> {
 		}
 	}
 
+	
 
 	@Override
 	public boolean equals(Object t) {
